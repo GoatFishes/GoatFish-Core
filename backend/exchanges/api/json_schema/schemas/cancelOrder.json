@@ -1,0 +1,22 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "closeOrder.schema.json",
+    "title": "closeOrder",
+    "description": "Close order json schema",
+    "type": "object",
+    "properties": {
+        "bot_id": {
+            "description": "unique identifier for the bot",
+            "type": "string"
+        },
+        "order_id": {
+            "description": "Unique id for the order we want to cancel",
+            "type": "string"
+        }
+    },
+    "required": [
+        "bot_id",
+        "order_id"
+    ],
+    "additionalProperties": false
+}

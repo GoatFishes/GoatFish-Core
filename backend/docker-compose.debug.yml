@@ -1,0 +1,15 @@
+version: "3.5"
+
+services:      
+  dbadmin:
+    image: adminer
+    restart: always
+    container_name: postgres_admin
+    ports:
+      - 8002:8080
+    networks:
+      - titan_backend  
+
+networks:
+  titan_backend:
+    external: true

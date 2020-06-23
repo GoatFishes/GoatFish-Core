@@ -1,0 +1,50 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "setOrder.schema.json",
+    "title": "setOrder",
+    "description": "leverage json schema",
+    "type": "object",
+    "properties": {
+        "bot_id": {
+            "description": "unique identifier for the bot",
+            "type": "string"
+        },
+        "symbol": {
+            "description": "symbol to modify the leverage",
+            "type": "string"
+        },
+        "exec_instructions": {
+            "description": "Optional execution instructions. Valid options: ParticipateDoNotInitiate, AllOrNone, MarkPrice, IndexPrice, LastPrice, Close, ReduceOnly, Fixed.",
+            "type": "string"
+        },
+        "order_type": {
+            "description": "Order type. Valid options: Market, Limit, Stop, StopLimit, MarketIfTouched, LimitIfTouched, Pegged.",
+            "type": "string"
+        },
+        "time_in_force": {
+            "description": "Time in force. Valid options: Day, GoodTillCancel, ImmediateOrCancel, FillOrKill.",
+            "type": "string"
+        },
+        "price": {
+            "description": "Optional limit price for 'Limit', 'StopLimit', and 'LimitIfTouched' orders.",
+            "type": "number"
+        },
+        "order_qty": {
+            "description": "Order quantity in units of the instrument",
+            "type": "number"
+        },
+        "side": {
+            "description": "Order side. Valid options: Buy, Sell.",
+            "type": "string"
+        }
+    },
+    "required": [
+        "bot_id",
+        "symbol",        
+        "side",
+        "order_qty",       
+        "time_in_force",
+        "order_type"  
+        ],
+    "additionalProperties": true
+}

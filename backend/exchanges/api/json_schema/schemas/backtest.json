@@ -1,0 +1,32 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "backtest.schema.json",
+    "title": "backtest",
+    "description": "backtest json schema",
+    "type": "object",
+    "properties": {
+        "bin_size": {
+            "description": "Bin size of the trades",
+            "type": "string"
+        },
+        "end_time": {
+            "description": "End time of the tradeBin",
+            "type": "string"
+        },
+        "symbol": {
+            "description": "Symbol of the tradeBin",
+            "type": "string"
+        },
+        "bot_id": {
+            "description": "The bot we will be using the historic data on",
+            "type": "string"
+        }
+    },
+    "required": [
+        "bin_size",
+        "end_time",
+        "symbol",
+        "bot_id"
+    ],
+    "additionalProperties": false
+}

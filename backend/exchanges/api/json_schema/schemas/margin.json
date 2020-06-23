@@ -1,0 +1,8 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "margin.schema.json",
+    "title": "margin",
+    "description": "margin json schema",
+    "required": [],
+    "additionalProperties": false
+}

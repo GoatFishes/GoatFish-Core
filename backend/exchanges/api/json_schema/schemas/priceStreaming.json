@@ -1,0 +1,27 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "priceStreaming.schema.json",
+    "title": "priceStreaming",
+    "description": "priceStreaming json schema",
+    "type": "object",
+    "properties": {
+        "exchange": {
+            "description": "Exchange to initiate the price streaming for",
+            "type": "string"
+        },
+        "time_frame": {
+            "description": "time_frame to watch",
+            "type": "string"
+        },
+        "asset": {
+            "description": "Asset to watch for",
+            "type": "string"
+        }
+    },
+    "required": [
+        "exchange",
+        "time_frame",
+        "asset"
+    ],
+    "additionalProperties": false
+}

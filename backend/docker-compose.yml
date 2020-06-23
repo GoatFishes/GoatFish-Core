@@ -1,0 +1,151 @@
+version: "3.5"
+
+services:
+
+  # Kafka
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: zookeeper
+    ports:
+      - 2181
+    networks:
+      - titan_backend
+  
+  kafka:
+    image: wurstmeister/kafka:latest
+    container_name: kafka
+    restart: always
+    depends_on:
+      - zookeeper
+    ports:
+      - target: 9094
+        published: 9094
+        protocol: tcp
+        mode: host
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: "kafka"
+      KAFKA_ADVERTISED_PORT: "9092"
+      KAFKA_CREATE_TOPICS: "backtest:1:1, requestState:1:1, bitmexPriceStream:1:1, positions:1:1, margin:1:1, orders:1:1, leverage:1:1"
+      HOSTNAME_COMMAND: "docker info | grep ^Name: | cut -d' ' -f 2"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://:9092,OUTSIDE://_{HOSTNAME_COMMAND}:9094
+      KAFKA_LISTENERS: INSIDE://:9092,OUTSIDE://:9094
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:delegated
+    networks:
+      - titan_backend
+
+  # Database
+  postgres:
+    image: postgres:10-alpine
+    restart: always
+    container_name: postgres
+    ports:
+      - 5432
+    volumes:
+      - ./postgres/data:/var/lib/postgresql/data:delegated
+      - ./postgres/scripts:/docker-entrypoint-initdb.d:delegated
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    networks:
+      - titan_backend
+
+  # APIs
+  exchanges_api:
+    build: ./exchanges/api
+    image: exchanges_api
+    restart: always
+    container_name: exchanges_api
+    external_links:
+      - reconciliation_api
+      - bots_api
+      - mocha_test
+    depends_on:
+      - postgres
+      - kafka
+    ports:
+      - ${EXCHANGESPORT}:3003
+    env_file:
+      - ./.env
+    networks:
+      - titan_backend
+    volumes:
+      - ./exchanges/api/WebSocket.js:/usr/src/app/node_modules/bitmex-realtime-api/lib/ReconnectingSocket.js:delegated
+      - utils:/usr/src/app/utils:delegated
+      - database:/usr/src/app/utils/database:delegated
+      - /var/run/docker.sock:/var/run/docker.sock
+  
+  bots_api:
+    build: ./bots/api
+    image: bots_api
+    restart: always
+    container_name: bots_api
+    external_links:
+      - reconciliation_api
+      - exchanges_api
+      - mocha_test
+    depends_on:
+      - postgres
+      - kafka
+    ports:
+      - ${BOTSPORT}:3002
+    env_file:
+      - ./.env
+    networks:
+      - titan_backend
+    volumes:
+      - ./bots/api/strategies:/usr/src/app/strategies
+      - utils:/usr/src/app/utils:delegated
+      - database:/usr/src/app/utils/database:delegated
+      - /var/run/docker.sock:/var/run/docker.sock
+      
+  reconciliation_api:
+    build: ./reconciliation/api
+    image: reconciliation_api
+    restart: always
+    container_name: reconciliation_api
+    external_links:
+      - exchanges_api
+      - bots_api
+      - mocha_test
+    ports:
+      - ${RECONCILIATIONPORT}:3001
+    env_file:
+      - ./.env
+    networks:
+      - titan_backend
+    volumes:
+      - utils:/usr/src/app/utils:delegated
+      - database:/usr/src/app/utils/database:delegated
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  strategy_baseline:
+    image: strategy_baseline
+    build:
+      context: ./bots/api/bots
+    restart: always
+    container_name: strategy_baseline
+    networks:
+      - titan_backend
+      
+volumes:
+  database:
+    name: database
+    driver: local
+    driver_opts:
+      type: none
+      device: "$PWD/postgres/connection"
+      o: bind   
+  utils:
+    name: utils
+    driver: local
+    driver_opts:
+      type: none
+      device: "$PWD/utils"
+      o: bind
+
+networks:
+  titan_backend:
+    external: true

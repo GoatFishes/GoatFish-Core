@@ -1,0 +1,32 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "keyBotUpload.schema.json",
+    "title": "keyBotUpload",
+    "description": "keyBotUpload json schema",
+    "type": "object",
+    "properties": {
+        "bot_id": {
+            "description": "unique identifier for the bot",
+            "type": "string"
+        },
+        "api_key_id": {
+            "description": "API key id for the exchange we want to execute the code for",
+            "type": "string"
+        },
+        "api_key_secret": {
+            "description": "API key secret for the exchange we want to execute the code for",
+            "type": "string"
+        },
+        "exchange": {
+            "description": "Exchange the keys belong to",
+            "type": "string"
+        }
+    },
+    "required": [
+        "bot_id",
+        "api_key_id",
+        "api_key_secret",
+        "exchange"
+    ],
+    "additionalProperties": false
+}

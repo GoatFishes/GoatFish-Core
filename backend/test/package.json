@@ -1,0 +1,23 @@
+{
+  "name": "testing",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --slow 1 --timeout 5000 --colors *.js"
+  },
+  "license": "ISC",
+  "author": "LucasRodriguez",
+  "dependencies": {
+    "async": "^3.2.0",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "chai-http": "^4.3.0",
+    "kafka-node": "^4.1.3",
+    "log4js": "^5.1.0",
+    "mocha": "^7.0.1",
+    "node-fetch":"^2.6.0",
+    "pg": "^7.12.0",
+    "rubico": "1.0.1"
+  }
+}
