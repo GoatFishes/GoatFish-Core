@@ -4,7 +4,7 @@ install:
 	# Deploy external project network
 	-- docker network create titan_backend
 	
-	docker pull lucasxhy/strategy_baseline:0.0.10
+	docker pull lucasxhy/strategy_baseline:0.0.11
 	
 	# Bring the project down
 	-- cd backend && docker-compose -f docker-compose.yml down

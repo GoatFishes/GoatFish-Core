@@ -24,7 +24,7 @@ module.exports = async () => {
     app.use(route.get('/get', async (ctx) => {
         try {
             logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Validating the payload`)
-            const payload = ctx.checkPayload(ctx, 'orders')
+            const payload = ctx.checkPayload(ctx, 'empty')
             if (!payload) {
                 throw new ExceptionHandler(RESPONSE_CODES.APPLICATION_ERROR, 'PAYLOAD ISSUE : ' + global.jsonErrorMessage)
             }
