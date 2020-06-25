@@ -1,6 +1,6 @@
 const fetch = require('node-fetch')
 
-fetchLinkBody = async (route, body, method) => {
+const fetchLinkBody = async (route, body, method) => {
   let result
   await fetch(route, {
     method: method,
@@ -14,7 +14,7 @@ fetchLinkBody = async (route, body, method) => {
   return result
 }
 
-fetchLink = async (route, method) => {
+const fetchLink = async (route, method) => {
   let result
   await fetch(route, {
     method: method,

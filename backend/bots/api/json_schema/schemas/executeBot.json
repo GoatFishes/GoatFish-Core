@@ -5,13 +5,13 @@
     "description": "ExecutBot JSON schema",
     "type": "object",
     "properties": {
-        "bot_id": {
+        "botId": {
             "description": "Name of the bot we want to start up",
             "type": "string"
         }
     },
     "required": [
-        "bot_id"
+        "botId"
     ],
     "additionalProperties": false
 }

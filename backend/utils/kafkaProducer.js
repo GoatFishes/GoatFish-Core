@@ -3,7 +3,7 @@ var kafka = require('kafka-node'),
     client = new kafka.KafkaClient({ kafkaHost: 'kafka:9092' }),
     producer = new Producer(client)
 
-kafkaProduce = async (topic, message) => {
+const kafkaProduce = async (topic, message) => {
     payloads = [
         { topic: topic, messages: JSON.stringify(message), partition: 0 }
     ]

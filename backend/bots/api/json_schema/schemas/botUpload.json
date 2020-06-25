@@ -5,7 +5,7 @@
     "description": "keyBotUpload JSON schema",
     "type": "object",
     "properties": {
-        "bot_id": {
+        "botId": {
             "description": "unique id for the bot",
             "type": "string"
         },
@@ -13,11 +13,11 @@
             "description": "Strategy the bot will be using",
             "type": "string"
         },
-        "api_key_id": {
+        "apiKeyId": {
             "description": "API key id for the exchange we want to execute the code for",
             "type": "string"
         },
-        "api_key_secret": {
+        "apiKeySecret": {
             "description": "API key secret for the exchange we want to execute the code for",
             "type": "string"
         },
@@ -25,18 +25,18 @@
             "description": "Exchange the keys belong to",
             "type": "string"
         },
-        "port_number": {
+        "portNumber": {
             "description": "Port the bot will be hosted at",
             "type": "number"
         }
     },
     "required": [
-        "bot_id",
+        "botId",
         "strategy",
-        "api_key_id",
-        "api_key_secret",
+        "apiKeyId",
+        "apiKeySecret",
         "exchange",
-        "port_number"
+        "portNumber"
     ],
     "additionalProperties": true
 }

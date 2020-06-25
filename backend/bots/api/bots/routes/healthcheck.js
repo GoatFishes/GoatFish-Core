@@ -6,6 +6,7 @@ const { LOG_LEVELS, RESPONSE_CODES } = require('../utils/constants')
 
 module.exports = async () => {
     const app = new Koa()
+    
     /** 
      * Endpoint dedicated to return the health of the container when queried
      * 

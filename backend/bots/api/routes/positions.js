@@ -7,11 +7,8 @@ const { LOG_LEVELS, RESPONSE_CODES } = require('../utils/constants')
 const { selectOrdersByStatus, updateOrderPositionId, insertPosition, selectPositions, selectPaperOrdersByStatus, insertPaperPosition, selectPaperPositions, updatePaperOrderPositionId } = require('../utils/database/db')
 
 const BUY = "Buy"
-const NULL = null
 const LONG = "Long"
 const SHORT = "Short"
-const TAKER_FEE = -0.00075        // -0,075%
-const MAKER_FEE = 0.00025         // +0,025%
 
 let botSet = []
 let order_ids = []
@@ -35,23 +32,20 @@ let positions
 let entryPrice
 let position_id
 let initialMargin
-let ordersDirection = NULL
+let ordersDirection = null
 
 module.exports = async () => {
     const app = new Koa()
 
     /**
-     * Summary    Get the Orders for all the aggregated bots or any given id, by aggregating all the orders info from the db
+     * Get the Orders for all the aggregated bots or any given id, by aggregating all the orders info from the db
      * @param type {string} specify the type of positions we are trying to build accepts options [liveOrder, paperTrade]. A null value will assume liveOrder. 
      */
     app.use(route.get('/', async (ctx) => {
         type = await ctx.request.query.type
 
         logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Validating the payload`)
-        const payload = ctx.checkPayload(ctx, 'empty')
-        if (!payload) {
-            throw new ExceptionHandler(RESPONSE_CODES.APPLICATION_ERROR, 'PAYLOAD ISSUE : ' + global.jsonErrorMessage)
-        }
+        ctx.checkPayload(ctx, 'empty')
 
         try {
             logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Determine position type and fetching all orders from the database`)
@@ -64,7 +58,7 @@ module.exports = async () => {
             }
 
             logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Determine position type and build position response`)
-            if (type == "paperTrade") { orders = await selectPaperPositions() }
+            if (type === "paperTrade") { orders = await selectPaperPositions() }
             else { positions = await selectPositions() }
 
             for (let i = 0; i < positions.length; i++) {
@@ -89,27 +83,18 @@ module.exports = async () => {
                     }
                 }
             }
-        } catch (e) { throw new ExceptionHandler(RESPONSE_CODES.APPLICATION_ERROR, 'Fatal error on Positions building : ' + e) }
+        } catch (e) { throw new ExceptionHandler(RESPONSE_CODES.APPLICATION_ERROR, `Fatal error on Positions building : ${e}`) }
 
-        ctx.status = 200,
-            ctx.body = {
-                data: positionSet
-            }
+        ctx.status = 200
+        ctx.body = {
+            data: positionSet
+        }
     }))
 
     return app
 }
 
-ordersRecursion = async (orders) => {
-    // vars
-    let fee_type
-
-    // Set the fee type
-    orders.order_type == "Market" ?
-        fee_type = TAKER_FEE
-        :
-        fee_type = MAKER_FEE
-
+const ordersRecursion = async (orders) => {
     order_ids.push(orders.order_id)
 
     // Determine whether this is a new position or a followup position
@@ -219,7 +204,7 @@ ordersRecursion = async (orders) => {
         }
 
         logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Reseting persistance variables`)
-        ordersDirection = NULL
+        ordersDirection = null
 
         roe = 0
         pnl = 0

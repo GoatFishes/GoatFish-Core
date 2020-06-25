@@ -1,7 +1,8 @@
 const chai = require("chai")
 const expect = chai.expect
 const { fetchLinkBody, fetchLink } = require('./utils/fetcher')
-const { insertBotKeys, insertBotStrategy, selectPerformance, selectOrders, selectPaperOrders, TruncateTables } = require('./utils/db')
+const { insertBotKeys, insertBotStrategy, selectPerformance, selectOrders, selectPaperOrders, TruncateTables } = require('./utils/database/db')
+
 const kafka = require('kafka-node'),
     Producer = kafka.Producer,
     client = new kafka.KafkaClient({ kafkaHost: 'kafka:9092' }),

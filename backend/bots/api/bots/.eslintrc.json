@@ -3,7 +3,7 @@
   "plugins": ["prettier"],
   "rules": {
     "no-console": "warn",
-    "no-await-in-loop":"warn",
+    "no-await-in-loop":"off",
     "func-names": "off",
     "no-param-reassign": "off",
     "no-underscore-dangle": "off",

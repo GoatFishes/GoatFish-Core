@@ -1,4 +1,4 @@
-getCurrentTime = async () => {
+const getCurrentTime = async () => {
     var MyDate = new Date();
     var MyDateString;
 

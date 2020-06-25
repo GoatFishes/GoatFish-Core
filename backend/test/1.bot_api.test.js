@@ -41,7 +41,7 @@ const {
     // Testing
     TruncateTables
 
-} = require('./utils/db')
+} = require('./utils/database/db')
 
 const kafka = require('kafka-node'),
     Producer = kafka.Producer,
@@ -70,7 +70,7 @@ describe('Bots API', () => {
             let body
             it('Should succesfully call the /upload endpoint', async () => {
                 body = {
-                    "bot_id": "defaultKeys",
+                    "botId": "defaultKeys",
                     "strategy":
                         `const strategy = async (params) => {
 	let strategyObject = {
@@ -99,18 +99,18 @@ describe('Bots API', () => {
 }
 module.exports = { strategy }
 `
-                    , "api_key_id": keys.apiKeyID, "api_key_secret": keys.apiKeySecret, "exchange": "bitmex", "port_number": 3009, "assets": `["1mXBTUSD", "5mXBTUSD"]`
+                    , "apiKeyId": keys.apiKeyID, "apiKeySecret": keys.apiKeySecret, "exchange": "bitmex", "portNumber": 3009, "assets": `["1mXBTUSD", "5mXBTUSD"]`
                 }
                 res = await fetchLinkBody("http://bots_api:3002/bots/management/upload", body, "POST")
             })
 
             it('Should return the correct message', () => {
-                expect(JSON.stringify(res)).to.eql(`{"data":{"bot_id":"defaultKeys","upload":"OK"}}`);
+                expect(JSON.stringify(res)).to.eql(`{"data":{"botId":"defaultKeys","upload":"OK"}}`);
             })
 
             it('Should persist a new bot to the database', async () => {
                 let tradePersistance = await selectBotByBotId(['defaultKeys'])
-                expect(tradePersistance[0].bot_id).to.eql(body.bot_id);
+                expect(tradePersistance[0].bot_id).to.eql(body.botId);
             })
 
             after(async () => {
@@ -129,17 +129,17 @@ module.exports = { strategy }
             })
 
             it('Should succesfully call the /initiliaze endpoint', async () => {
-                body = { "bot_id": "defaultKeys" }
+                body = { "botId": "defaultKeys" }
                 res = await fetchLinkBody("http://bots_api:3002/bots/management/initiliaze", body, "POST")
             })
 
             it('Should return the correct message', () => {
-                expect(JSON.stringify(res)).to.eql(`{"data":{"bot_id":"defaultKeys","status":"Stop"}}`);
+                expect(JSON.stringify(res)).to.eql(`{"data":{"botId":"defaultKeys","status":"Stop"}}`);
             })
 
             it('Should return 200 when calling /healthcheck for the container', async () => {
                 await sleep(2000);
-                res = await fetchLink(`http://${body.bot_id}:${port}/healthcheck`, "GET")
+                res = await fetchLink(`http://${body.botId}:${port}/healthcheck`, "GET")
                 expect(JSON.stringify(res)).to.eql('{"data":"OK"}');
             })
 
@@ -157,24 +157,22 @@ module.exports = { strategy }
                 await insertBotStrategy(["defaultKeys", "", 0.0, 0.0, 3009, null, 'Stop'])
 
                 payloads = [
-                    { topic: topic, messages: '{"bot_id":"defaultKeys","exchange":"bitmex","data":{"account":1180512,"currency":"XBt","prevDeposited":274515,"prevWithdrawn":0,"prevTransferIn":0,"prevTransferOut":0,"prevAmount":1308,"prevTimestamp":"2019-11-25T12:00:00.000Z","deltaDeposited":0,"deltaWithdrawn":0,"deltaTransferIn":0,"deltaTransferOut":0,"deltaAmount":0,"deposited":274515,"withdrawn":0,"transferIn":0,"transferOut":0,"amount":1308,"pendingCredit":0,"pendingDebit":0,"confirmedDebit":0,"timestamp":"2019-11-26T12:00:02.877Z","addr":"3BMEXVK5Jypn8yS8eMZqNg6MtFWaQzwcta","script":"534104220936c3245597b1513a9a7fe96d96facf1a840ee21432a1b73c2cf42c1810284dd730f21ded9d818b84402863a2b5cd1afe3a3d13719d524482592fb23c88a3410472225d3abc8665cf01f703a270ee65be5421c6a495ce34830061eb0690ec27dfd1194e27b6b0b659418d9f91baec18923078aac18dc19699aae82583561fefe541048a1c80f418e2e0ed444c7cf868094598a480303aec840f4895b207b813a8b700e0960a513f567724a7e467101a608c5b20be10de103010bb66fec4d0d2c8cb8b4104a24db5c0e8ed34da1fd3b6f9f797244981b928a8750c8f11f9252041daad7b2d95309074fed791af77dc85abdd8bb2774ed8d53379d28cd49f251b9c08cab7fc54ae","withdrawalLock":[]}}', partition: 0 }
+                    { topic: topic, messages: '{"botId":"defaultKeys","exchange":"bitmex","data":{"account":1180512,"currency":"XBt","prevDeposited":274515,"prevWithdrawn":0,"prevTransferIn":0,"prevTransferOut":0,"prevAmount":1308,"prevTimestamp":"2019-11-25T12:00:00.000Z","deltaDeposited":0,"deltaWithdrawn":0,"deltaTransferIn":0,"deltaTransferOut":0,"deltaAmount":0,"deposited":274515,"withdrawn":0,"transferIn":0,"transferOut":0,"amount":1308,"pendingCredit":0,"pendingDebit":0,"confirmedDebit":0,"timestamp":"2019-11-26T12:00:02.877Z","addr":"3BMEXVK5Jypn8yS8eMZqNg6MtFWaQzwcta","script":"534104220936c3245597b1513a9a7fe96d96facf1a840ee21432a1b73c2cf42c1810284dd730f21ded9d818b84402863a2b5cd1afe3a3d13719d524482592fb23c88a3410472225d3abc8665cf01f703a270ee65be5421c6a495ce34830061eb0690ec27dfd1194e27b6b0b659418d9f91baec18923078aac18dc19699aae82583561fefe541048a1c80f418e2e0ed444c7cf868094598a480303aec840f4895b207b813a8b700e0960a513f567724a7e467101a608c5b20be10de103010bb66fec4d0d2c8cb8b4104a24db5c0e8ed34da1fd3b6f9f797244981b928a8750c8f11f9252041daad7b2d95309074fed791af77dc85abdd8bb2774ed8d53379d28cd49f251b9c08cab7fc54ae","withdrawalLock":[]}}', partition: 0 }
                 ]
                 await producer.send(payloads, async function (err, data) {
                 })
             })
-
-            // Upload a new bot
-            var res
+            let res
             it('Should succesfully call the / endpoint', async () => {
-                res = await fetchLink("http://bots_api:3002/bots/margin", "GET")
+               res = await fetchLink("http://bots_api:3002/bots/margin", "GET")
             })
 
             it('Should return the correct response', () => {
                 expect(res).to.have.property('data');
-                expect(res.data).to.have.property('margin_response_object');
-                expect(res.data.margin_response_object).to.have.property('bitmex');
-                expect(res.data.margin_response_object.bitmex[0]).to.have.property('bot_id');
-                expect(res.data.margin_response_object.bitmex[0]).to.have.property('amount');
+                expect(res.data).to.have.property('marginResponseObject');
+                expect(res.data.marginResponseObject).to.have.property('bitmex');
+                expect(res.data.marginResponseObject.bitmex[0]).to.have.property('botId');
+                expect(res.data.marginResponseObject.bitmex[0]).to.have.property('amount');
             })
 
             it('Should persit the correct margin to the bots table', async () => {
