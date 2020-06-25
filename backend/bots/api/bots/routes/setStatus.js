@@ -2,10 +2,9 @@ const Koa = require('koa')
 const route = require('koa-route')
 const logEvent = require('../utils/logger')
 const { stop } = require(`../status/stop/stop`)
+const { trade } = require(`../status/trade/trade`)
 const { backtest } = require(`../status/backtest/backtest`)
 const ExceptionHandler = require('../utils/ExceptionHandler')
-const { liveTrade } = require(`../status/liveTrade/liveTrade`)
-const { paperTrade } = require(`../status/paperTrade/paperTrade`)
 const { updateBotStrategyStatus } = require('../utils/database/db')
 const { LOG_LEVELS, RESPONSE_CODES } = require('../utils/constants')
 
@@ -43,10 +42,10 @@ module.exports = async () => {
                     backtest({ timeFrame, symbol, exchange })
                     break;
                 case 'PaperTrade':
-                    paperTrade()
+                    trade({type:"paperTrade"})
                     break;
                 case 'LiveTrade':
-                    liveTrade()
+                    trade({type:"liveTrading"})                    
                     break;
                 case 'Stop':
                     break;

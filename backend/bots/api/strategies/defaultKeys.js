@@ -10,16 +10,16 @@ const strategy = async (params) => {
 		, timeInForce: "GoodTillCancel"						// Always goodTillCancelled
 		, timestamp: null
 	}
-	if (params.open[params.open.length - 1] < 977) {
+	if (params[params.length - 1].open < 977) {
         strategyObject.execute = true
-        strategyObject.price = params.open[params.open.length - 1]
-		strategyObject.timestamp = params.timestamp[params.timestamp.length - 1]
+        strategyObject.price = params[params.length - 1].open
+		strategyObject.timestamp = params[params.length - 1].timestamp
 	}
-	else if (params.open[params.open.length - 1] > 977) {
+	else if (params[params.length - 1].open > 977) {
         strategyObject.execute = true
-        strategyObject.price = params.open[params.open.length - 1]
+        strategyObject.price = params[params.length - 1].open
 		strategyObject.side = "Sell"
-		strategyObject.timestamp = params.timestamp[params.timestamp.length - 1]
+		strategyObject.timestamp = params[params.length - 1].timestamp
 	}
 	return strategyObject
 }
