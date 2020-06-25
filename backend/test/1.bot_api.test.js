@@ -84,16 +84,16 @@ describe('Bots API', () => {
 		, timeInForce: "GoodTillCancel"						// Always goodTillCancelled
 		, timestamp: null
 	}
-	if (params.open[params.open.length - 1] < 977) {
+	if (params[params.length - 1].open < 977) {
         strategyObject.execute = true
-        strategyObject.price = params.open[params.open.length - 1]
-		strategyObject.timestamp = params.timestamp[params.timestamp.length - 1]
+        strategyObject.price = params[params.length - 1].open
+		strategyObject.timestamp = params[params.length - 1].timestamp
 	}
-	else if (params.open[params.open.length - 1] > 977) {
+	else if (params[params.length - 1].open > 977) {
         strategyObject.execute = true
-        strategyObject.price = params.open[params.open.length - 1]
+        strategyObject.price = params[params.length - 1].open
 		strategyObject.side = "Sell"
-		strategyObject.timestamp = params.timestamp[params.timestamp.length - 1]
+		strategyObject.timestamp = params[params.length - 1].timestamp
 	}
 	return strategyObject
 }
@@ -574,21 +574,20 @@ module.exports = { strategy }
 
 
         describe('paper orders', () => {
-            let res
             it('Should upload a new order to the databse', async () => {
                 await insertPaperOrder(["defaultKeys", "bitmex", "ab7ae2nf-c828-76fc-3190-a35883804599", null, "2019-08-08T01:04:28.939Z", "Open", "Buy", 1000, 8000, 4000, 10, "Limit", "10"])
-                res = await selectPaperOrders()
+                let res = await selectPaperOrders()
                 expect(res.length).to.equal(1)
             })
 
             it('Should select an order by status Open', async () => {
-                res = await selectPaperOrdersByStatus(["Open"])
+                let res = await selectPaperOrdersByStatus(["Open"])
                 expect(res.length).to.equal(1)
             })
 
             it('Should update the order status in the databse', async () => {
                 await updatePaperOrderStatus(["Closed", "ab7ae2nf-c828-76fc-3190-a35883804599"])
-                res = await selectPaperOrdersByStatus(["Closed"])
+                let res = await selectPaperOrdersByStatus(["Closed"])
                 expect(res[0].order_status).to.equal("Closed")
             })
 

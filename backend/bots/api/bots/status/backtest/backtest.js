@@ -17,12 +17,7 @@ const { addTrade, cleanTrade, selectAllPriceHistory } = require('../../utils/dat
 const backtest = async (params) => {
     try {
         const { timeFrame, symbol, exchange } = params
-        const low = []
-        const high = []
-        const open = []
-        const close = []
-        const timestamp = []
-
+        const prices = []
         let counter = 0
         let allTrades = []
         let strategyObject = {}
@@ -35,15 +30,9 @@ const backtest = async (params) => {
 
         logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Populate arrays with the historic pricePoints and execute strategy`)
         for (let i = 0; i < pricePoints.length; i += 1) {
-            open.push(pricePoints[i]._open)
-            close.push(pricePoints[i]._close)
-            high.push(pricePoints[i]._high)
-            low.push(pricePoints[i]._low)
-
-            timestamp.push((pricePoints[i]._timestamp).toISOString())
-            strategyObject = await strategy({ open, close, high, low, timestamp })
-
-            if (strategyObject.execute === true) {
+            prices.push({open: pricePoints[i]._open, close: pricePoints[i]._close, high: pricePoints[i]._high, low: pricePoints[i]._low, timestamp: (pricePoints[i]._timestamp).toISOString()})
+            strategyObject = await strategy(prices)
+            if (strategyObject.execute) {
                 logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Executing a trade`)
                 allTrades.push(strategyObject)
 

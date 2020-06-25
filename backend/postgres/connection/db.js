@@ -223,6 +223,7 @@ const selectPaperOrdersByStatus = async (params) => {
  */
 const insertPaperOrder = async (params) => {
     await db.query('INSERT INTO paper_orders(bot_id, exchange, order_id, position_ref, _timestamp, order_status, side, size, _price, margin, leverage, order_type, average_price) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)', params)
+    console.log("db")
     return
 }
 

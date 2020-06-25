@@ -9,7 +9,6 @@ const kafka = require('kafka-node'),
     offset = new kafka.Offset(client)
 
 let liveTradeConsumer
-let paperTradeConsumer
 
 // safely accesses properties with get
 const safeParseTopic = (topic, data) => get([topic, 0, 0])(data)
@@ -93,15 +92,15 @@ const groupConsumer = async (groupId, topic) => {
         onRebalance: (isAlreadyMember, callback) => { callback(); } // or null
     };
 
-    groupId == `${process.env.BOTNAME}Group` ? liveTradeConsumer = await new ConsumerGroup(options, topic) : paperTradeConsumer = await new ConsumerGroup(options, topic)
-    groupId == `${process.env.BOTNAME}Group` ? consumerGroup = liveTradeConsumer : consumerGroup = paperTradeConsumer
+    liveTradeConsumer = await new ConsumerGroup(options, topic) 
+    consumerGroup = liveTradeConsumer
 
     return consumerGroup
 }
 
 const pauseConsumer = async (groupId) => {
 
-    groupId == `${process.env.BOTNAME}Group` ? consumerGroup = liveTradeConsumer : consumerGroup = paperTradeConsumer
+    consumerGroup = liveTradeConsumer
 
     logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Closing ${groupId} Consumer`)
 
