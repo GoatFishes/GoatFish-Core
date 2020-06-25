@@ -1,4 +1,7 @@
-/backend/postgres/data/
-/backend/bots/api/strategies/
+/backend/postgres/data
+/backend/bots/api/strategies
 /backend/exchanges/api/api/node_modules/bitmex-realtime-api/lib/ReconnectingSocket.js
 /backend/.env
+/backend/.env
+/backend/utils/database
+/coverage

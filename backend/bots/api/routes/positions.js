@@ -48,7 +48,7 @@ module.exports = async () => {
         type = await ctx.request.query.type
 
         logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Validating the payload`)
-        const payload = ctx.checkPayload(ctx, 'positions')
+        const payload = ctx.checkPayload(ctx, 'empty')
         if (!payload) {
             throw new ExceptionHandler(RESPONSE_CODES.APPLICATION_ERROR, 'PAYLOAD ISSUE : ' + global.jsonErrorMessage)
         }

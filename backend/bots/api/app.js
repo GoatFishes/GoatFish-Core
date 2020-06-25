@@ -53,10 +53,7 @@ const main = async () => {
         await schema({
             execute: require('./json_schema/schemas/executeBot.json'),
             upload: require('./json_schema/schemas/botUpload.json'),
-            margin: require('./json_schema/schemas/margin.json'),
-            orders: require('./json_schema/schemas/orders.json'),
-            positions: require('./json_schema/schemas/positions.json'),
-            healthcheck: require('./json_schema/schemas/healthcheck.json'),
+            empty: require('./json_schema/schemas/empty.json'),
         }))
 
     app.use(mount('/bots/management', await management()))

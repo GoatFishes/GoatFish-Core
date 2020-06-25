@@ -88,7 +88,7 @@ module.exports = async () => {
             let PAIR = pair.join()
 
             logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Setting up containerised bot`)
-            exec(`curl --unix-socket /var/run/docker.sock -H "Content-Type: application/json" -d '{ "Image": "strategy_baseline", "ExposedPorts": { "${PORT}/tcp": {} }, "HostConfig": { "Binds": ["database:/usr/src/app/utils/database","utils:/usr/src/app/utils:delegated","${process.env.CURRENT_PATH}/backend/bots/api/strategies/${BOT_ID}.js:/usr/src/app/strategies/${BOT_ID}.js"], "NetworkMode": "titan_backend", "PortBindings": { "${PORT}/tcp": [{ "HostPort": "${PORT}" }]}}, "Env": ["BOTNAME=${BOT_ID}", "PORT=${PORT}", "PAIR=${PAIR}"]}' -X POST http:/v1.4/containers/create?name=${BOT_ID}`,
+            exec(`curl --unix-socket /var/run/docker.sock -H "Content-Type: application/json" -d '{ "Image": "lucasxhy/strategy_baseline:0.0.11", "ExposedPorts": { "${PORT}/tcp": {} }, "HostConfig": { "Binds": ["database:/usr/src/app/utils/database","utils:/usr/src/app/utils:delegated","${process.env.CURRENT_PATH}/backend/bots/api/strategies/${BOT_ID}.js:/usr/src/app/strategies/${BOT_ID}.js"], "NetworkMode": "titan_backend", "PortBindings": { "${PORT}/tcp": [{ "HostPort": "${PORT}" }]}}, "Env": ["BOTNAME=${BOT_ID}", "PORT=${PORT}", "PAIR=${PAIR}"]}' -X POST http:/v1.4/containers/create?name=${BOT_ID}`,
                 (err, stdout, stderr) => {
                     console.log(stdout)
                     console.log(stderr)
