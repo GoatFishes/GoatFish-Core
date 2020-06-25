@@ -7,7 +7,6 @@ services:
     restart: always
     container_name: test
     external_links:
-      - reconciliation_api
       - exchanges_api
       - bots_api
     networks:
@@ -15,7 +14,6 @@ services:
     volumes:
       - ./bots/api:/usr/src/app/bots:delegated
       - ./exchanges/api:/usr/src/app/exchanges:delegated
-      - ./reconciliation/api:/usr/src/app/reconciliation:delegated
       - ./utils:/usr/src/app/utils:delegated
       - ./postgres/connection/databaseManager.js:/usr/src/app/utils/databaseManager.js:delegated
       - ./postgres/connection/db.js:/usr/src/app/utils/db.js:delegated
