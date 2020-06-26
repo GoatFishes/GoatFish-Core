@@ -260,7 +260,7 @@ module.exports = { strategy }
 
             it('Should return the correct response', () => {
                 expect(res).to.have.property("data")
-                expect(res.data[0]).to.have.property("bot_id")
+                expect(res.data[0]).to.have.property("botId")
                 expect(res.data[0]).to.have.property("positions")
                 expect(res.data[0].positions).to.have.property("long")
                 expect(res.data[0].positions).to.have.property("short")
@@ -292,13 +292,15 @@ module.exports = { strategy }
                 }
             })
 
-            it('Should succesfully call the /get endpoint with a null type', async () => {
+            it('Should succesfully call the /get endpoint with type PaperTrade', async () => {
+                await insertPaperOrder(["defaultKeys", "bitmex", "ab7ae2nf-c828-76fc-3190-a35883804599", null, "2019-08-08T01:04:28.939Z", "Filled", "Buy", 1000, 8000, 4000, 10, "Limit", 200])
+                await insertPaperOrder(["defaultKeys", "bitmex", "ab7ae2nf-c824-76fc-3190-a35883804599", null, "2019-08-08T01:04:29.939Z", "Filled", "Sell", 1000, 8000, 4000, 10, "Limit", 200])
                 res = await fetchLink("http://bots_api:3002/bots/positions?type=paperTrade", "GET")
             })
 
             it('Should return the correct response', () => {
                 expect(res).to.have.property("data")
-                expect(res.data[0]).to.have.property("bot_id")
+                expect(res.data[0]).to.have.property("botId")
                 expect(res.data[0]).to.have.property("positions")
                 expect(res.data[0].positions).to.have.property("long")
                 expect(res.data[0].positions).to.have.property("short")
@@ -324,7 +326,7 @@ module.exports = { strategy }
             })
 
             it('Should perist a new position to the database', async () => {
-                let positionPersistance = await selectPositions()
+                let positionPersistance = await selectPaperPositions()
                 for (let i = 0; i < positionPersistance.length; i++) {
                     expect(positionPersistance[i].position_id).to.not.be.null;
                 }

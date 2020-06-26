@@ -10,30 +10,6 @@ const BUY = "Buy"
 const LONG = "Long"
 const SHORT = "Short"
 
-let botSet = []
-let order_ids = []
-let positionSet = []
-let average_price = []
-let average_leverage = []
-
-let size = 0
-let assignedMargin = 0
-let liberatedMargin = 0
-let contractZeroCounter = 0
-
-let roe
-let pnl
-let side
-let type
-let bot_id
-let endTime
-let startTime
-let positions
-let entryPrice
-let position_id
-let initialMargin
-let ordersDirection = null
-
 module.exports = async () => {
     const app = new Koa()
 
@@ -42,183 +18,180 @@ module.exports = async () => {
      * @param type {string} specify the type of positions we are trying to build accepts options [liveOrder, paperTrade]. A null value will assume liveOrder. 
      */
     app.use(route.get('/', async (ctx) => {
-        type = await ctx.request.query.type
-
-        logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Validating the payload`)
-        ctx.checkPayload(ctx, 'empty')
-
         try {
-            logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Determine position type and fetching all orders from the database`)
-            if (type == "paperTrade") { orders = await selectPaperOrdersByStatus(["Filled"]) }
-            else { orders = await selectOrdersByStatus(["Filled"]) }
+            const type = await ctx.request.query.type
 
-            for (let i = 0; i < orders.length; i++) {
+            const orderIds = []
+            let side = ""
+            let size = 0
+            let ordersDirection = ""
+            let startTime 
+            let endTime
+            let positions = ""
+            let entryPrice = 0
+            let assignedMargin = 0
+            let liberatedMargin = 0
+            let contractZeroCounter = 0
+
+            logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Validating the payload`)
+            ctx.checkPayload(ctx, 'empty')
+
+            logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Determine position type and fetching all orders from the database`)
+            let orders
+            if (type === "paperTrade") {
+                orders = await selectPaperOrdersByStatus(["Filled"])
+            } else {
+                orders = await selectOrdersByStatus(["Filled"])
+            }
+
+            // making the call to calcualte here
+            for (let i = 0; i < orders.length; i += 1) {
                 logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Processing orders into positions: ${i + 1}/${orders.length}`)
-                await ordersRecursion(orders[i])
+                const positionUpdate = await ordersRecursion({ orderIds, orders: orders[i], side, startTime, endTime, entryPrice, assignedMargin, liberatedMargin, contractZeroCounter, ordersDirection, size, type })
+                side = positionUpdate.side
+                size = positionUpdate.size
+                endTime = positionUpdate.endTime
+                positions = positionUpdate.positions
+                startTime = positionUpdate.startTime
+                entryPrice = positionUpdate.entryPrice
+                assignedMargin = positionUpdate.assignedMargin
+                liberatedMargin = positionUpdate.liberatedMargin
+                ordersDirection = positionUpdate.ordersDirection
+                contractZeroCounter = positionUpdate.contractZeroCounter
             }
 
             logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Determine position type and build position response`)
-            if (type === "paperTrade") { orders = await selectPaperPositions() }
-            else { positions = await selectPositions() }
+            if (type === "paperTrade") {
+                positions = await selectPaperPositions()
+            } else {
+                positions = await selectPositions()
+            }
 
-            for (let i = 0; i < positions.length; i++) {
+            // Building the positions Object to return here
+            const botSet = []
+            let botPosition
+            const positionSet = []
+            for (let i = 0; i < positions.length; i += 1) {
                 if (!botSet.includes(positions[i].bot_id)) {
                     botSet.push(positions[i].bot_id)
                     botPosition = botSet.indexOf(positions[i].bot_id);
-                    positionSet.push({ bot_id: positions[i].bot_id, positions: { long: [], short: [] } })
-                    if (positions[i].side == "Long") {
+                    positionSet.push({ botId: positions[i].bot_id, positions: { long: [], short: [] } })
+
+                    if (positions[i].side === "Long") {
                         positionSet[botPosition].positions.long.push(positions[i])
-                    }
-                    else if (positions[i].side == "Short") {
+                    } else if (positions[i].side === "Short") {
                         positionSet[botPosition].positions.short.push(positions[i])
                     }
                 }
                 else if (botSet.includes(positions[i].botId)) {
                     botPosition = botSet.indexOf(positions[i].botId);
-                    if (positions[i].side == "Long") {
+
+                    if (positions[i].side === "Long") {
                         positionSet[botPosition].positions.long.push(positions[i])
-                    }
-                    else if (positions[i].side == "Short") {
+                    } else if (positions[i].side === "Short") {
                         positionSet[botPosition].positions.short.push(positions[i])
                     }
                 }
             }
+            ctx.status = 200
+            ctx.body = {
+                data: positionSet
+            }
         } catch (e) { throw new ExceptionHandler(RESPONSE_CODES.APPLICATION_ERROR, `Fatal error on Positions building : ${e}`) }
-
-        ctx.status = 200
-        ctx.body = {
-            data: positionSet
-        }
     }))
 
     return app
 }
 
-const ordersRecursion = async (orders) => {
-    order_ids.push(orders.order_id)
+const ordersRecursion = async (params) => {
+    const { orderIds, orders, type } = params
+    let { side, startTime, entryPrice, assignedMargin, liberatedMargin, contractZeroCounter, ordersDirection, size } = params
+
+    orderIds.push(orders.order_id)
+
+    let averagePrice = []
+    let averageLeverage = []
 
     // Determine whether this is a new position or a followup position
-    contractZeroCounter == 0 ?
-        (
-            orders.side == BUY ?
-                // If the trades is long
-                (
-                    ordersDirection = LONG,
-                    side = "Long",
-                    contractZeroCounter += orders.size,
-                    size += orders.size,
-                    assignedMargin += orders.margin,
-                    entryPrice = orders.average_price,
-                    startTime = orders._timestamp,
-                    average_leverage.push(orders.leverage),
-                    average_price.push(orders.average_price)
-                )
-                :
-                // If the trade is short
-                (
-                    ordersDirection = SHORT,
-                    side = "Short",
-                    contractZeroCounter += orders.size,
-                    size += orders.size,
-                    assignedMargin += orders.margin,
-                    entryPrice = orders.average_price,
-                    startTime = orders._timestamp,
-                    average_leverage.push(orders.leverage),
-                    average_price.push(orders.average_price)
-                )
-        )
-        :
-        // If it is a follow up trade
-        (
-            // If the original side is long
-            ordersDirection == LONG ?
-                (
-                    // Determine whether the follow up trade was meant to go long or short
-                    orders.side == BUY ?
-                        // If follow up trade is long
-                        (
-                            contractZeroCounter += orders.size,
-                            size += orders.size,
-                            assignedMargin += orders.margin,
-                            average_leverage.push(orders.leverage),
-                            average_price.push(orders.average_price)
-                        )
-                        :
-                        // If follow up trade is short
-                        (
-                            contractZeroCounter -= orders.size,
-                            liberatedMargin -= orders.margin,
-                            average_leverage.push(orders.leverage),
-                            average_price.push(orders.average_price)
-                        )
-                )
-                :
-                // If the trade is short
-                (
-                    orders.side == BUY ?
-                        // If follow up trade is long
-                        (
-                            contractZeroCounter += orders.size,
-                            liberatedMargin += orders.margin,
-                            average_leverage.push(orders.leverage),
-                            average_price.push(orders.average_price)
-                        )
-                        :
-                        // If follow up trade is short
-                        (
-                            contractZeroCounter -= orders.size,
-                            size += orders.size,
-                            assignedMargin += orders.margin,
-                            average_leverage.push(orders.leverage),
-                            average_price.push(orders.average_price)
-                        )
-                )
-        )
-
-    if (contractZeroCounter == 0) {
-        position_id = uuid()
-        bot_id = orders.bot_id
-        endTime = orders._timestamp
-        initialMargin = assignedMargin
-        pnl = liberatedMargin + assignedMargin
-        roe = ((-liberatedMargin / assignedMargin) * 100) - 100
-        average_price = average_price.reduce((a, b) => a + b, 0) / average_price.length
-        average_leverage = average_leverage.reduce((a, b) => a + b, 0) / average_leverage.length
-
-        logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Adding position with id: ${position_id} to the databse`)
-        if (type == "paperTrade") {
-            await insertPaperPosition([position_id, bot_id, entryPrice, initialMargin, startTime, endTime, side, size, pnl, roe, average_leverage, average_price])
+    if (contractZeroCounter === 0) {
+        if (orders.side === BUY) {
+            ordersDirection = LONG
+            side = "Long"
+            contractZeroCounter += orders.size            
+            size += orders.size
+            assignedMargin += orders.margin
+            entryPrice = orders.average_price
+            startTime = orders._timestamp
+            averageLeverage.push(orders.leverage)
+            averagePrice.push(orders.averagePrice)
+        } else {
+            ordersDirection = SHORT
+            side = "Short"
+            contractZeroCounter += orders.size
+            size += orders.size
+            assignedMargin += orders.margin
+            entryPrice = orders.averagePrice
+            startTime = orders._timestamp
+            averageLeverage.push(orders.leverage)
+            averagePrice.push(orders.averagePrice)
         }
-        else {
-            await insertPosition([position_id, bot_id, entryPrice, initialMargin, startTime, endTime, side, size, pnl, roe, average_leverage, average_price])
+    } else if (ordersDirection === LONG) {
+        if (orders.side === BUY) {
+            contractZeroCounter += orders.size
+            size += orders.size
+            assignedMargin += orders.margin
+            averageLeverage.push(orders.leverage)
+            averagePrice.push(orders.averagePrice)
+        } else {
+            contractZeroCounter -= orders.size
+            liberatedMargin -= orders.margin
+            averageLeverage.push(orders.leverage)
+            averagePrice.push(orders.averagePrice)
+        }
+    } else if (ordersDirection === SHORT) {
+        if (orders.side === BUY) {
+            contractZeroCounter += orders.size
+            liberatedMargin += orders.margin
+            averageLeverage.push(orders.leverage)
+            averagePrice.push(orders.averagePrice)
+        } else {
+            contractZeroCounter -= orders.size
+            size += orders.size
+            assignedMargin += orders.margin
+            averageLeverage.push(orders.leverage)
+            averagePrice.push(orders.averagePrice)
+        }
+    }
+
+    if (contractZeroCounter === 0) {
+        const positionId = uuid()
+        const botId = orders.bot_id
+        const endTime = orders._timestamp
+        const initialMargin = assignedMargin
+        const pnl = liberatedMargin + assignedMargin
+        const roe = ((-liberatedMargin / assignedMargin) * 100) - 100
+        averagePrice = averagePrice.reduce((a, b) => a + b, 0) / averagePrice.length
+        averageLeverage = averageLeverage.reduce((a, b) => a + b, 0) / averageLeverage.length
+
+        logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Adding position with id: ${positionId} to the databse`)
+        if (type === "paperTrade") {
+            await insertPaperPosition([positionId, botId, entryPrice, initialMargin, startTime, endTime, side, size, pnl, roe, averageLeverage, averagePrice])
+        } else {
+            await insertPosition([positionId, botId, entryPrice, initialMargin, startTime, endTime, side, size, pnl, roe, averageLeverage, averagePrice])
         }
 
-        for (let i = 0; i < order_ids.length; i++) {
-            logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Updating the position_id for all related orders`)
-            if (type == "paperTrade") {
-                await updatePaperOrderPositionId([position_id, order_ids[i]])
-            }
-            else {
-                await updateOrderPositionId([position_id, order_ids[i]])
+        for (let i = 0; i < orderIds.length; i += 1) {
+            logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Updating the orderId for all related orders`)
+            if (type === "paperTrade") {
+                await updatePaperOrderPositionId([positionId, orderIds[i]])
+            } else {
+                await updateOrderPositionId([positionId, orderIds[i]])
             }
         }
 
         logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Reseting persistance variables`)
         ordersDirection = null
-
-        roe = 0
-        pnl = 0
-        initialMargin = 0
-        assignedMargin = 0
-        liberatedMargin = 0
-
-        side = ""
-        bot_id = ""
-        endTime = ""
-        position_id = ""
-
-        order_ids = []
-        average_price = []
-        average_leverage = []
     }
+
+    return { side, startTime, entryPrice, assignedMargin, liberatedMargin, contractZeroCounter, ordersDirection, size, orderIds, orders, type }
 }
