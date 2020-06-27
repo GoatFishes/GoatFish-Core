@@ -18,9 +18,6 @@ const insertExchangeKeys = async (params) => {
     if (!rows.length) {
         await db.query('INSERT INTO exchange_keys(exchange, exchange_key) VALUES ($1, $2)', params)
     }
-    else {
-        return ("Exchange already exists")
-    }
 
     return
 }
@@ -34,9 +31,6 @@ const insertExchangeKeys = async (params) => {
  */
 const selectKeysByExchange = async (params) => {
     let { rows } = await db.query('SELECT * FROM exchange_keys WHERE exchange = $1', params)
-    if (!rows.length) {
-        console.log("No exchanges on record")
-    }
 
     return rows
 }
@@ -57,8 +51,11 @@ const insertBotKeys = async (params) => {
 
     if (!rows.length) {
         await db.query('INSERT INTO bot_keys(bot_id, bot_key, exchange) VALUES ($1, $2, $3)', params)
+        return
     }
-    return
+    else{
+        return
+    }
 }
 
 /**
@@ -72,9 +69,7 @@ const insertBotKeys = async (params) => {
  */
 const selectKeysByBotId = async (params) => {
     let { rows } = await db.query('SELECT * FROM bot_keys WHERE bot_id = $1', params)
-    if (!rows.length) {
-        console.log("No exchanges on record")
-    }
+
     return rows
 }
 
@@ -85,9 +80,6 @@ const selectKeysByBotId = async (params) => {
  */
 const selectAllKeys = async () => {
     let { rows } = await db.query('SELECT * FROM bot_keys')
-    if (!rows.length) {
-        console.log("No exchanges on record")
-    }
 
     return rows
 }
@@ -264,9 +256,6 @@ const updatePaperOrderPositionId = async (params) => {
  */
 const selectWebsocketByExchange = async (params) => {
     let { rows } = await db.query('SELECT * FROM websockets WHERE exchange = $1', params)
-    if (!rows.length) {
-        errorHandling("No exchanges on record")
-    }
 
     return rows
 }
@@ -285,10 +274,9 @@ const insertWebsocket = async (params) => {
 
     if (!rows.length) {
         await db.query('INSERT INTO websockets(exchange, asset, time_frame) VALUES ($1, $2, $3)', params)
+        return true
     }
     else { return false }
-
-    return true
 }
 
 
