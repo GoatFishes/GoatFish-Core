@@ -1,6 +1,6 @@
 {
-    "extends": ["airbnb", "prettier", "plugin:node/recommended"],
-    "plugins": ["prettier"],
+    "extends": ["airbnb", "prettier", "plugin:node/recommended", "plugin:security/recommended"],
+    "plugins": ["prettier", "security"],
     "rules": {
       "no-console": "warn",
       "no-await-in-loop":"off",
@@ -15,6 +15,7 @@
       "import/no-dynamic-require":"off",
       "global-require":"off",
       "radix":"off",
-      "consistent-return":"warn"
+      "consistent-return":"off", 
+      "security/detect-object-injection":"off"
     }
   }

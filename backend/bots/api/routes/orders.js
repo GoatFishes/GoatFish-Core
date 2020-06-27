@@ -6,10 +6,6 @@ const ExceptionHandler = require('../utils/ExceptionHandler')
 const { LOG_LEVELS, RESPONSE_CODES } = require('../utils/constants')
 const { selectOrders, updateOrderStatus } = require('../utils/database/db')
 
-
-
-
-
 module.exports = async () => {
     const app = new Koa()
 

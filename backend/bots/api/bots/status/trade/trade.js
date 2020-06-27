@@ -1,5 +1,5 @@
 const logEvent = require('../../utils/logger')
-const { tradeCalls } = require(`./tradeCalls`)
+const { tradeCalls } = require('./tradeCalls')
 const { groupConsumer } = require('../../utils/kafkaConsumer')
 const { selectKeysByBotId } = require('../../utils/database/db')
 const ExceptionHandler = require('../../utils/ExceptionHandler')

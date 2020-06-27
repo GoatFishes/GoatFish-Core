@@ -1,3 +1,7 @@
+const BUY = "Buy"
+const LONG = "Long"
+const SHORT = "Short"
+
 const Koa = require('koa')
 const route = require('koa-route')
 const uuid = require('uuid-random')
@@ -6,16 +10,15 @@ const ExceptionHandler = require('../utils/ExceptionHandler')
 const { LOG_LEVELS, RESPONSE_CODES } = require('../utils/constants')
 const { selectOrdersByStatus, updateOrderPositionId, insertPosition, selectPositions, selectPaperOrdersByStatus, insertPaperPosition, selectPaperPositions, updatePaperOrderPositionId } = require('../utils/database/db')
 
-const BUY = "Buy"
-const LONG = "Long"
-const SHORT = "Short"
-
 module.exports = async () => {
     const app = new Koa()
 
     /**
      * Get the Orders for all the aggregated bots or any given id, by aggregating all the orders info from the db
-     * @param type {string} specify the type of positions we are trying to build accepts options [liveOrder, paperTrade]. A null value will assume liveOrder. 
+     * 
+     * @param type {string} specify the type of positions we are trying to build accepts options [liveOrder, paperTrade]. A null value will assume liveOrder.
+     * 
+     * @returns
      */
     app.use(route.get('/', async (ctx) => {
         try {
@@ -112,7 +115,6 @@ const ordersRecursion = async (params) => {
     let averagePrice = []
     let averageLeverage = []
 
-    // Determine whether this is a new position or a followup position
     if (contractZeroCounter === 0) {
         if (orders.side === BUY) {
             ordersDirection = LONG

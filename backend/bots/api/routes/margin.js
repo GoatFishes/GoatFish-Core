@@ -10,7 +10,9 @@ module.exports = async () => {
     const app = new Koa()
 
     /**
-     * Summary    Get the margin for all the aggregated bots or any given, by reading from kafka
+     *  Get the margin for all the aggregated bots or any given, by reading from kafka
+     * 
+     * @returns an object that organises the margin of each bot by exchange
      */
     app.use(route.get('/', async (ctx) => {
         try {
@@ -43,6 +45,16 @@ module.exports = async () => {
     return app
 }
 
+/**
+ * Processes the messages read from kafka
+ * 
+ * @param {array} messaged Array containing all the unparse messages from kafka
+ * @param {array} exchangeList List of all the exchanges the bots are using
+ * @param {data} date ISO 8601 formated date
+ * @param {object} marginResponseObject Empty object with the bots organised by exchanges 
+ * 
+ * @returns an object that organises the margin of each bot by exchange
+ */
 const processMargin = async (params) => {
     const { messages, exchangeList, date, marginResponseObject } = params
 

@@ -61,7 +61,6 @@ module.exports = async () => {
     app.use(route.post('/initiliaze', async (ctx) => {
         try {
             logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Validating the payload`)
-
             const payload = ctx.checkPayload(ctx, 'execute')
 
             const { botId } = payload

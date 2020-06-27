@@ -1,6 +1,6 @@
 const logEvent = require('../../utils/logger')
 const ExceptionHandler = require('../../utils/ExceptionHandler')
-const { testStats } = require(`./backtestAnalyser.js`)
+const { testStats } = require('./backtestAnalyser.js')
 const { strategy } = require(`../../strategies/${process.env.BOTNAME}`)
 const { LOG_LEVELS, RESPONSE_CODES } = require('../../utils/constants')
 const { addTrade, cleanTrade, selectAllPriceHistory } = require('../../utils/database/db')
