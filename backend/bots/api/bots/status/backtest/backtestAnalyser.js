@@ -26,7 +26,6 @@ const testStats = async () => {
 
         logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Retrieve all orders the backtest performed`)
         const allOrders = await selectAllTrades()
-        console.log(allOrders)
 
         logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Loop through the orders to get the info`)
         for (let orderNumber = 0; orderNumber < allOrders.length; orderNumber+=1) {

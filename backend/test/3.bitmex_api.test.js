@@ -27,7 +27,7 @@ const {
 
     //All 
     TruncateTables
-} = require('./utils/db')
+} = require('./utils/database/db')
 
 let order_id
 
@@ -184,7 +184,7 @@ describe('Bitmex API', () => {
                 let msg = await consumer("margin")
                 let parsedMsg = JSON.parse(msg[0].value)
 
-                expect(parsedMsg).to.have.property("bot_id")
+                expect(parsedMsg).to.have.property("botId")
                 expect(parsedMsg).to.have.property("exchange")
                 expect(parsedMsg.data).to.have.property("account")
                 expect(parsedMsg.data).to.have.property("currency")

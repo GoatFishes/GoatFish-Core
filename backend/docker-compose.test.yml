@@ -1,6 +1,6 @@
 version: "3.5"
 
-services: 
+services:
   test:
     build: ./test
     image: test_api
@@ -10,13 +10,28 @@ services:
       - exchanges_api
       - bots_api
     networks:
-      - titan_backend  
+      - titan_backend
     volumes:
       - ./bots/api:/usr/src/app/bots:delegated
       - ./exchanges/api:/usr/src/app/exchanges:delegated
-      - ./utils:/usr/src/app/utils:delegated
-      - ./postgres/connection/databaseManager.js:/usr/src/app/utils/databaseManager.js:delegated
-      - ./postgres/connection/db.js:/usr/src/app/utils/db.js:delegated
+      - utils_test:/usr/src/app/utils:delegated
+      - database_test:/usr/src/app/utils/database:delegated
+
+volumes:
+  database_test:
+    name: database
+    driver: local
+    driver_opts:
+      type: none
+      device: "$PWD/postgres/connection"
+      o: bind
+  utils_test:
+    name: utils
+    driver: local
+    driver_opts:
+      type: none
+      device: "$PWD/utils"
+      o: bind
 
 networks:
   titan_backend:

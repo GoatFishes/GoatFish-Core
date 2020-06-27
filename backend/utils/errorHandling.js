@@ -1,7 +1,7 @@
 const { RESPONSE_CODES, LOG_LEVELS } = require('./constants')
 const logEvent = require('./logger')
 
-errorHandling = async (e) => {
+const errorHandling = async (e) => {
     let stringError = String(e)
     // Disconnected from the internet
     if (stringError.includes('ECONNREFUSED')) {

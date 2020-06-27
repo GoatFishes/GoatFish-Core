@@ -51,11 +51,11 @@ CREATE TABLE PAPER_POSITION (
    ,START_TIME            timestamptz     NOT NULL
    ,END_TIME              timestamptz     NOT NULL
    ,SIDE                  text            NOT NULL
-   ,SIZE                  text            NOT NULL
-   ,PROFIT_LOSS           text            NOT NULL
-   ,ROE                   text            NOT NULL
-   ,LEVERAGE              text            NOT NULL
-   ,AVERAGE_PRICE         text            NOT NULL
+   ,SIZE                  float            NOT NULL
+   ,PROFIT_LOSS           float            NOT NULL
+   ,ROE                   float            NOT NULL
+   ,LEVERAGE              float            NOT NULL
+   ,AVERAGE_PRICE         float            NOT NULL
 );
 
 CREATE TABLE PAPER_ORDERS (
@@ -85,11 +85,11 @@ CREATE TABLE POSITION (
    ,START_TIME            timestamptz     NOT NULL
    ,END_TIME              timestamptz     NOT NULL
    ,SIDE                  text            NOT NULL
-   ,SIZE                  text            NOT NULL
-   ,PROFIT_LOSS           text            NOT NULL
-   ,ROE                   text            NOT NULL
-   ,LEVERAGE              text            NOT NULL
-   ,AVERAGE_PRICE         text            NOT NULL
+   ,SIZE                  float            NOT NULL
+   ,PROFIT_LOSS           float            NOT NULL
+   ,ROE                   float            NOT NULL
+   ,LEVERAGE              float            NOT NULL
+   ,AVERAGE_PRICE         float            NOT NULL
 );
 
 CREATE TABLE ORDERS (
