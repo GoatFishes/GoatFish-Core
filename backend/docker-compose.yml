@@ -9,7 +9,7 @@ services:
     ports:
       - 2181
     networks:
-      - titan_backend
+      - goatFish_backend
   
   kafka:
     image: wurstmeister/kafka:latest
@@ -35,7 +35,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:delegated
     networks:
-      - titan_backend
+      - goatFish_backend
 
   # Database
   postgres:
@@ -50,7 +50,7 @@ services:
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
     networks:
-      - titan_backend
+      - goatFish_backend
 
   # APIs
   exchanges_api:
@@ -69,7 +69,7 @@ services:
     env_file:
       - ./.env
     networks:
-      - titan_backend
+      - goatFish_backend
     volumes:
       - ./exchanges/api/WebSocket.js:/usr/src/app/node_modules/bitmex-realtime-api/lib/ReconnectingSocket.js:delegated
       - utils:/usr/src/app/utils:delegated
@@ -92,7 +92,7 @@ services:
     env_file:
       - ./.env
     networks:
-      - titan_backend
+      - goatFish_backend
     volumes:
       - ./bots/api/strategies:/usr/src/app/strategies
       - utils:/usr/src/app/utils:delegated
@@ -116,5 +116,5 @@ volumes:
       o: bind
 
 networks:
-  titan_backend:
+  goatFish_backend:
     external: true

@@ -12,6 +12,8 @@ const keys = {
     "apiKeyID": "UrXvde3OcEZQEMZe5imiNp6a",
     "apiKeySecret": "wtIf_By1-ScAWrToFA-ALOkWJ9sH9naJEj5eMqXQsxiRLzrC"
 }
+sleep = m => new Promise(r => setTimeout(r, m))
+
 
 describe('Strategy Baseline', async () => {
     let body = { "botId": "defaultKeys" }

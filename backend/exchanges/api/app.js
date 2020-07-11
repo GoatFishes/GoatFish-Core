@@ -10,16 +10,16 @@ const bodyParser = require('koa-bodyparser')
 const positions = require('./routes/positions')
 const backtest = require('./routes/backtest.js')
 const healthcheck = require('./routes/healthcheck.js')
-const { formatErrorResponse } = require('./utils/formatErrorResponse')
 const priceStreaming = require('./routes/priceStreaming.js')
-const { startUpScripts } = require('./scripts/startupScripts')
-const { LOG_LEVELS, RESPONSE_CODES, API_PORT } = require('./utils/constants')
+const { LOG_LEVELS, RESPONSE_CODES } = require('./utils/constants')
+const { formatErrorResponse } = require('./utils/formatErrorResponse')
+
 
 // Init kafka 
-var kafka = require('kafka-node'),
-    Producer = kafka.Producer,
-    client = new kafka.KafkaClient({ kafkaHost: 'kafka:9092' }),
-    producer = new Producer(client)
+const kafka = require('kafka-node')
+const { Producer } = kafka
+const client = new kafka.KafkaClient({ kafkaHost: 'kafka:9092' })
+const producer = new Producer(client)
 
 
 const main = async () => {
@@ -69,15 +69,11 @@ const main = async () => {
             backtest: require('./json_schema/schemas/backtest.json'),
             keyBotUpload: require('./json_schema/schemas/keyBotUpload.json'),
             keyExchangeUpload: require('./json_schema/schemas/keyExchangeUpload.json'),
-            margin: require('./json_schema/schemas/margin.json'),
-            orders: require('./json_schema/schemas/orders.json'),
             setOrder: require('./json_schema/schemas/setOrder.json'),
-            positions: require('./json_schema/schemas/positions.json'),
             leverage: require('./json_schema/schemas/positionLeverage.json'),
-            healthcheck: require('./json_schema/schemas/healthcheck.json'),
+            empty: require('./json_schema/schemas/empty.json'),
             priceStreaming: require('./json_schema/schemas/priceStreaming.json'),
             cancelOrder: require('./json_schema/schemas/cancelOrder.json')
-
         }))
 
     app.use(mount('/exchanges/key', await keys()))
@@ -96,5 +92,4 @@ if (require.main === module) {
     main()
         .then((app) => app.listen(process.env.EXCHANGESPORT), logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Listening On Port ${process.env.EXCHANGESPORT}`))
         .then(producer.on('ready', function () { logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Kafka Broker Ready`) }))
-        .then(startUpScripts())
 }

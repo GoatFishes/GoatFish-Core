@@ -1,0 +1,8 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "empty.schema.json",
+    "title": "empty",
+    "description": "Checks an endpoint can only receive empty bodies",
+    "required": [],
+    "additionalProperties": false
+}

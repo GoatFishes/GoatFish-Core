@@ -1,5 +1,6 @@
 const { RESPONSE_CODES, LOG_LEVELS } = require('./constants')
 const logEvent = require('./logger')
+sleep = m => new Promise(r => setTimeout(r, m))
 
 const errorHandling = async (e) => {
     let stringError = String(e)

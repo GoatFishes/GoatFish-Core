@@ -2,7 +2,7 @@ install:
 	sh init.sh
 
 	# Deploy external project network
-	-- docker network create titan_backend
+	-- docker network create goatFish_backend
 	
 	docker pull lucasxhy/strategy_baseline:0.0.11
 	
@@ -29,7 +29,7 @@ test:
 	rm -rf ./backend/postgres/data
 
 	# Deploy external project network
-	-- docker network create titan_backend
+	-- docker network create goatFish_backend
 	
 		# Bring the project down
 	-- cd backend && docker-compose -f docker-compose.yml down
@@ -58,7 +58,7 @@ test-debug:
 	@echo "Fingers crossed then!\n" 
 
 	# Deploy external project network
-	-- docker network create titan_backend
+	-- docker network create goatFish_backend
 
 	# Build core logic
 	-- cd backend && docker-compose -f docker-compose.yml down	
@@ -81,4 +81,6 @@ duke-nukem:
 	- docker kill $$(docker ps -q)
 	- docker rm $$(docker ps -a -q)
 	- docker rmi $$(docker images -q)
+	- docker volume prune
+
 

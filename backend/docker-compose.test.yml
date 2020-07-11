@@ -10,7 +10,7 @@ services:
       - exchanges_api
       - bots_api
     networks:
-      - titan_backend
+      - goatFish_backend
     volumes:
       - ./bots/api:/usr/src/app/bots:delegated
       - ./exchanges/api:/usr/src/app/exchanges:delegated
@@ -34,5 +34,5 @@ volumes:
       o: bind
 
 networks:
-  titan_backend:
+  goatFish_backend:
     external: true

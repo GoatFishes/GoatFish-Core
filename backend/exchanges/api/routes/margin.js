@@ -11,52 +11,48 @@ module.exports = async () => {
 
     /**
      * Summary    Retrive The margin from all the different bots and commit the results to kafka
-     * @param {string} bot_id Unique name to identifyt the bot
+     * @param {string} botId Unique name to identifyt the bot
      */
     app.use(route.get('/', async (ctx) => {
         try {
             let keys
             let margin
             let exchangeModule
-            let topic = "margin"
-            let bot_id = await ctx.request.query.bot_id
+            const topic = "margin"
+            const botId = await ctx.request.query.botId
 
             logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Validating the payload`)
-            const payload = ctx.checkPayload(ctx, 'margin')
-            if (!payload) {
-                throw new ExceptionHandler(RESPONSE_CODES.APPLICATION_ERROR, 'PAYLOAD ISSUE : ' + global.jsonErrorMessage)
+            ctx.checkPayload(ctx, 'empty')
+
+            if (botId === "null"){
+                keys = await selectAllKeys()
+            } else {
+                keys = await selectKeysByBotId([botId])
             }
+            for (let i = 0; i < keys.length; i += 1) {
 
-            try {
-                bot_id == "null" ? keys = await selectAllKeys() : keys = await selectKeysByBotId([bot_id])
-                for (let i = 0; i < keys.length; i++) {
+                logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Loading the ${keys[i].exchange} module`)
+                exchangeModule = require(`../exchanges/${keys[i].exchange}/${keys[i].exchange}`)
 
-                    logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Loading the ${keys[i].exchange} module`)
-                    exchangeModule = require(`../exchanges/${keys[i].exchange}/${keys[i].exchange}`)
-
-                    logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Getting margin from ${keys[i].exchange} api`)
-                    let params = {
-                        "keys": keys[i].bot_key
-                    }
-                    margin = await exchangeModule.getMargin(params)
-
-                    logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Push information to kafka`)
-                    let marginObject = {
-                        bot_id: keys[i].bot_id,
-                        exchange: keys[i].exchange,
-                        data: margin
-                    }
-                    kafkaProduce(topic, marginObject)
+                logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Getting margin from ${keys[i].exchange} api`)
+                const params = {
+                    "keys": keys[i].bot_key
                 }
-            } catch (e) { reject(e) }
+                margin = await exchangeModule.getMargin(params)
 
-        } catch (e) { throw new ExceptionHandler(RESPONSE_CODES.APPLICATION_ERROR, 'Margin retrieval failed with fatal error:' + e) }
-
-
-        ctx.status = 200
-        ctx.body = {
-            data: "OK"
-        }
+                logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Push information to kafka`)
+                const marginObject = {
+                    botId: keys[i].botId,
+                    exchange: keys[i].exchange,
+                    data: margin
+                }
+                kafkaProduce(topic, marginObject)
+            }
+            ctx.status = 200
+            ctx.body = {
+                data: "OK"
+            }
+        } catch (e) { throw new ExceptionHandler(RESPONSE_CODES.APPLICATION_ERROR, `Margin retrieval failed with fatal error: ${e}`) }
     }))
 
     return app
