@@ -81,12 +81,12 @@ module.exports = async () => {
      * 
      * @param {string}  botId Unique name to identify the bot
      * @param {string}  symbol Order pair
-     * @param {integer}  order_qty Order quantity in units of the instrument
+     * @param {integer}  orderQty Order quantity in units of the instrument
      * @param {string} side Order side. Valid options: Buy, Sell
-     * @param {string} order_type Order type. Valid options: Market, Limit, Stop, StopLimit, MarketIfTouched, LimitIfTouched, Pegged
-     * @param {string} time_in_force Time in force. Valid options: Day, GoodTillCancel, ImmediateOrCancel, FillOrKill
-     * @param {string} exec_instructions Optional execution instructions. Valid options: ParticipateDoNotInitiate, AllOrNone, MarkPrice, IndexPrice, LastPrice, Close, ReduceOnly, Fixed 
-     * @param {float} stop_price Optional trigger price for 'Stop', 'StopLimit', 'MarketIfTouched', and 'LimitIfTouched' orders
+     * @param {string} orderType Order type. Valid options: Market, Limit, Stop, StopLimit, MarketIfTouched, LimitIfTouched, Pegged
+     * @param {string} timeInForce Time in force. Valid options: Day, GoodTillCancel, ImmediateOrCancel, FillOrKill
+     * @param {string} execInstructions Optional execution instructions. Valid options: ParticipateDoNotInitiate, AllOrNone, MarkPrice, IndexPrice, LastPrice, Close, ReduceOnly, Fixed 
+     * @param {float} stopPrice Optional trigger price for 'Stop', 'StopLimit', 'MarketIfTouched', and 'LimitIfTouched' orders
      * @param {float} price Optional limit price for 'Limit', 'StopLimit', and 'LimitIfTouched' orders
      * 
      * @returns An object specifying all the details for the correct setting of an order
@@ -95,7 +95,6 @@ module.exports = async () => {
         try {
             logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Validating the payload`)
             const payload = ctx.checkPayload(ctx, 'setOrder')
-
             const keys = await selectKeysByBotId([payload.botId])
 
             logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Loading the ${keys[0].exchange} module`)
@@ -103,58 +102,33 @@ module.exports = async () => {
 
             const key = keys[0].bot_key
 
-            logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Setting an order for the ${payload.botId} strategy, on the ${payload.symbol} pair with a quantity of ${payload.order_qty}`)
-            const params = {
-                keys: key,
-                symbol: payload.symbol,
-                exec_instructions: payload.exec_instructions,
-                order_type: payload.order_type,
-                time_in_force: payload.time_in_force,
-                stop_price: payload.stop_price,
-                price: payload.price,
-                order_qty: payload.order_qty,
-                side: payload.side
-            }
+            logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Setting an order for the ${payload.botId} strategy, on the ${payload.symbol} pair with a quantity of ${payload.orderQty}`)
+            const params = { keys: key, symbol: payload.symbol, execInstructions: payload.execInstructions, orderType: payload.orderType, timeInForce: payload.timeInForce, stopPrice: payload.stopPrice, price: payload.price, orderQty: payload.orderQty, side: payload.side }
 
             const order = await exchangeModule.setOrders(params)
-            const data = {
-                exchange: keys[0].exchange
-                , order_id: order.orderID
-                , time_stamp: order.timestamp
-                , order_status: order.ordStatus
-                , side: order.side
-                , order_quantity: order.orderQty
-                , price: order.price
-            }
-
-            const orderData = {
-                "botId": payload.botId,
-                "data": data
-            }
 
             ctx.status = 200
             ctx.body = {
                 data: {
-                    botId: orderData.botId
-                    , exchange: orderData.data.exchange
-                    , order_id: orderData.data.order_id
-                    , time_stamp: orderData.data.time_stamp
-                    , order_status: orderData.data.order_status
-                    , side: orderData.data.side
-                    , order_quantity: orderData.data.order_quantity
-                    , price: orderData.data.price
+                    botId: payload.botId
+                    , exchange: keys[0].exchange
+                    , orderId: order.orderID
+                    , timeStamp: order.timestamp
+                    , orderStatus: order.ordStatus
+                    , side: order.side
+                    , orderQuantity: order.orderQty
+                    , price: order.price
                 }
             }
 
-        } catch (e) { throw new ExceptionHandler(RESPONSE_CODES.APPLICATION_ERROR, `Order setting failed with fatal error: + ${e}`) }
-
+        } catch (e) { throw new ExceptionHandler(RESPONSE_CODES.APPLICATION_ERROR, `Order setting failed with fatal error: ${e}`) }
     }))
 
     /**
      * Cancel a given Order
      * 
      * @param {string}  botId Unique name to identify the bot
-     * @param {string}  order_id Order side
+     * @param {string}  orderId Order side
      * 
      * @returns An Object specifying all the details for the correct cancellation of an order
      */
@@ -171,42 +145,23 @@ module.exports = async () => {
 
             const key = keys[0].bot_key
 
-            logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Cancelling an order for the ${payload.botId} strategy, with order id ${payload.order_id}`)
-
-            const params = {
-                "keys": key,
-                "order_id": payload.order_id,
-            }
+            logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Cancelling an order for the ${payload.botId} strategy, with order id ${payload.orderId}`)
+            const params = { keys: key, orderId: payload.orderId }
 
             const order = await exchangeModule.cancelOrders(params)
-            await updateOrderStatus([order[0].ordStatus, payload.order_id])
-
-            const data = {
-                exchange: keys[0].exchange
-                , order_id: order[0].orderID
-                , time_stamp: order[0].timestamp
-                , order_status: order[0].ordStatus
-                , side: order[0].side
-                , order_quantity: order[0].orderQty
-                , price: order[0].price
-            }
-
-            const orderData = {
-                "botId": payload.botId,
-                "data": data
-            }
+            await updateOrderStatus([order[0].ordStatus, payload.orderId])
 
             ctx.status = 200
             ctx.body = {
                 data: {
-                    botId: orderData.botId
-                    , exchange: orderData.data.exchange
-                    , order_id: orderData.data.order_id
-                    , time_stamp: orderData.data.time_stamp
-                    , order_status: orderData.data.order_status
-                    , side: orderData.data.side
-                    , order_quantity: orderData.data.order_quantity
-                    , price: orderData.data.price
+                    botId: payload.botId
+                    , exchange: keys[0].exchange
+                    , orderId: order[0].orderID
+                    , timeStamp: order[0].timestamp
+                    , orderStatus: order[0].ordStatus
+                    , side: order[0].side
+                    , orderQuantity: order[0].orderQty
+                    , price: order[0].price
                 }
             }
         } catch (e) { throw new ExceptionHandler(RESPONSE_CODES.APPLICATION_ERROR, `Order cancellation failed with fatal error: ${e}`) }
@@ -248,6 +203,6 @@ const ordersRecursion = async (params) => {
         orders,
         total
     }
-    
+
     return updatedValues
 }

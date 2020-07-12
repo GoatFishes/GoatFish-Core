@@ -23,7 +23,7 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: "$PWD/postgres/connection"
+      device: "$PWD/utils/database"
       o: bind
   utils_test:
     name: utils

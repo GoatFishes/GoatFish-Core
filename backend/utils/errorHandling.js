@@ -4,12 +4,8 @@ sleep = m => new Promise(r => setTimeout(r, m))
 
 const errorHandling = async (e) => {
     let stringError = String(e)
-    // Disconnected from the internet
-    if (stringError.includes('ECONNREFUSED')) {
-        logEvent(LOG_LEVELS.warn, RESPONSE_CODES.LOG_MESSAGE_ONLY, `exchanges has been disconnected, please wait 10 seconds`)
-        await sleep(10000)
-    }
 
+    // Disconnected from the internet
     if (stringError.includes('ECONNREFUSED')) {
         logEvent(LOG_LEVELS.warn, RESPONSE_CODES.LOG_MESSAGE_ONLY, `exchanges has been disconnected, please wait 10 seconds`)
         await sleep(10000)
@@ -50,6 +46,7 @@ const errorHandling = async (e) => {
         await sleep(5000)
         logEvent(LOG_LEVELS.warn, RESPONSE_CODES.LOG_MESSAGE_ONLY, `exchanges has been rate limited for 5 seconds`)
     }
+    return
 }
 
 module.exports = { errorHandling }

@@ -11,9 +11,9 @@ module.exports = async () => {
     /**
      * Uploads an set of default bitmex API keys to the database for miscellaneous operation
      * 
-     * @param {string} bot_id Unique name for the bot
-     * @param {string} api_key_id Key id for the API
-     * @param {string} api_key_secret Secret for the API
+     * @param {string} botId Unique name for the bot
+     * @param {string} apiKeyId Key id for the API
+     * @param {string} apiKeySecret Secret for the API
      * @param {string} exchange Exchange the api keys belong to
      * 
      * @returns Confirmation the keys have been added to the database
@@ -24,12 +24,12 @@ module.exports = async () => {
             const payload = ctx.checkPayload(ctx, 'keyBotUpload')
 
             const api = {
-                apiKeyID: payload.api_key_id,
-                apiKeySecret: payload.api_key_secret
+                apiKeyID: payload.apiKeyId,
+                apiKeySecret: payload.apiKeySecret
             }
 
             logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Inserting bot keys into the database`)
-            await insertBotKeys([payload.bot_id, api, payload.exchange])
+            await insertBotKeys([payload.botId, api, payload.exchange])
         }
         catch (e) { throw new ExceptionHandler(RESPONSE_CODES.APPLICATION_ERROR, `UPLOAD ISSUE : ${e}`) }
         ctx.status = 200
@@ -42,8 +42,8 @@ module.exports = async () => {
      * Uploads an set of default bitmex API keys to the database for miscellaneous operation
      * 
      * @param {string} exchange Exchange the api keys belong to
-     * @param {string} api_key_id Key id for the API
-     * @param {string} api_key_secret Secret for the API
+     * @param {string} apiKeyId Key id for the API
+     * @param {string} apiKeySecret Secret for the API
      * 
      * @returns Confirmation the keys have been added to the database
      */
@@ -53,8 +53,8 @@ module.exports = async () => {
             const payload = ctx.checkPayload(ctx, 'keyExchangeUpload')
 
             const api = {
-                apiKeyID: payload.api_key_id,
-                apiKeySecret: payload.api_key_secret
+                apiKeyID: payload.apiKeyId,
+                apiKeySecret: payload.apiKeySecret
             }
 
             logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Inserting exchange keys into the database`)

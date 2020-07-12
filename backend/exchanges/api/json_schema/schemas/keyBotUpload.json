@@ -5,15 +5,15 @@
     "description": "keyBotUpload json schema",
     "type": "object",
     "properties": {
-        "bot_id": {
+        "botId": {
             "description": "unique identifier for the bot",
             "type": "string"
         },
-        "api_key_id": {
+        "apiKeyId": {
             "description": "API key id for the exchange we want to execute the code for",
             "type": "string"
         },
-        "api_key_secret": {
+        "apiKeySecret": {
             "description": "API key secret for the exchange we want to execute the code for",
             "type": "string"
         },
@@ -23,9 +23,9 @@
         }
     },
     "required": [
-        "bot_id",
-        "api_key_id",
-        "api_key_secret",
+        "botId",
+        "apiKeyId",
+        "apiKeySecret",
         "exchange"
     ],
     "additionalProperties": false

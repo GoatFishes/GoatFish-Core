@@ -99,13 +99,27 @@ services:
       - database:/usr/src/app/utils/database:delegated
       - /var/run/docker.sock:/var/run/docker.sock
     
+  strategy_baseline:
+    image: strategy_baseline
+    build:
+      context: ./strategy_baseline
+    restart: always
+    container_name: strategy_baseline
+    networks:
+      - goatFish_backend
+    volumes:
+      - ./bots/api/strategies:/usr/src/app/strategies
+      - utils:/usr/src/app/utils:delegated
+      - database:/usr/src/app/utils/database:delegated
+      - /var/run/docker.sock:/var/run/docker.sock
+
 volumes:
   database:
     name: database
     driver: local
     driver_opts:
       type: none
-      device: "$PWD/postgres/connection"
+      device: "$PWD/utils/database"
       o: bind   
   utils:
     name: utils

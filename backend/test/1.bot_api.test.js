@@ -49,8 +49,8 @@ const kafka = require('kafka-node'),
     producer = new Producer(client)
 
 const keys = {
-    "apiKeyID": "UrXvde3OcEZQEMZe5imiNp6a",
-    "apiKeySecret": "wtIf_By1-ScAWrToFA-ALOkWJ9sH9naJEj5eMqXQsxiRLzrC"
+    "apiKeyID": "QVBBDR7W4YdKi1bYB-p1Ml7O",
+    "apiKeySecret": "K4HFi8AQjk2PDytPh_V6gtX3KciIMuXtyn5iQ8UhRT-U41Hs"
 }
 
 sleep = m => new Promise(r => setTimeout(r, m))

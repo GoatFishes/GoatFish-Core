@@ -34,7 +34,6 @@ module.exports = async () => {
                 logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Calling the initiliazation of price stream for ${payload.timeFrame}${payload.asset}`)
                 const params = { "keys": exchangeInfo[0].exchange_key, "timeFrame": payload.timeFrame, "asset": payload.asset }
                 exchangeModule.streamPrice(params)
-
             }
             else { throw new ExceptionHandler(RESPONSE_CODES.APPLICATION_ERROR, 'Failed with fatal error: Websocket already exists') }
             ctx.status = 200

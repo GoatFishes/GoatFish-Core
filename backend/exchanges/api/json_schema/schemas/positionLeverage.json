@@ -5,7 +5,7 @@
     "description": "leverage json schema",
     "type": "object",
     "properties": {
-        "bot_id": {
+        "botId": {
             "description": "Unique identifier for the bot",
             "type": "string"
         },

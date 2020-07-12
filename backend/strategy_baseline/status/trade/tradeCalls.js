@@ -39,7 +39,7 @@ const tradeCalls = async (params) => {
         }
 
         logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Submit order to the exchange`)
-        const orderBody = { botId: process.env.BOTNAME, symbol, orderType, timeInForce, price, orderQty, side, timestamp }
+        const orderBody = { botId: process.env.BOTNAME, symbol, orderType, timeInForce, price, orderQty: parseInt(orderQty), side, timestamp }
 
         if (type === "liveTrading") {
             await setLiveOrder({ orderBody, leverageObject })

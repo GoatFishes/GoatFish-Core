@@ -5,11 +5,11 @@
     "description": "keyExchangeUpload json schema",
     "type": "object",
     "properties": {
-        "api_key_id": {
+        "apiKeyId": {
             "description": "API key id for the exchange we want to execute the code for",
             "type": "string"
         },
-        "api_key_secret": {
+        "apiKeySecret": {
             "description": "API key secret for the exchange we want to execute the code for",
             "type": "string"
         },
@@ -19,8 +19,8 @@
         }
     },
     "required": [
-        "api_key_id",
-        "api_key_secret",
+        "apiKeyId",
+        "apiKeySecret",
         "exchange"
     ],
     "additionalProperties": false

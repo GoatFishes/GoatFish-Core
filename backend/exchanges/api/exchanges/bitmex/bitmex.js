@@ -1,7 +1,7 @@
 const { LOG_LEVELS, RESPONSE_CODES } = require('../../utils/constants')
 const { kafkaProduce } = require('../../utils/kafkaProducer')
 const { errorHandling } = require('../../utils/errorHandling')
-const BitMexPlus = require('bitmex-plus');
+const { BitMexPlus } = require('bitmex-plus');
 const logEvent = require('../../utils/logger')
 
 /**
@@ -53,7 +53,7 @@ const getOrders = async (params) => {
  * @param {object} keys An object containing the api_id and the api_secret
  * @param {string} symbol The pairing we want to set the order in
  * @param {string} side Specify of the order is meant to buy or sell
- * @param {integer} order_qty Amount of contracts the order should have
+ * @param {integer} orderQty Amount of contracts the order should have
  * @param {float} price Price at which the order should execute 
  * @param {float} stop_price Stop price for a given order
  * @param {string} order_type The order type, ussually Limit or Market
@@ -65,16 +65,16 @@ const getOrders = async (params) => {
 const setOrders = async (params) => {
     const bitMexClient = await getClient(params.keys)
 
-    logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Setting a ${params.order_type} ${params.side} Order of ${params.symbol} for ${params.order_qty} @ $${params.price}`)
+    logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Setting a ${params.order_type} ${params.side} Order of ${params.symbol} for ${params.orderQty} @ $${params.price}`)
     const postOrders = await bitMexClient.makeRequest('POST', 'order', {
         symbol: params.symbol,
         side: params.side,
-        orderQty: params.order_qty,
+        orderQty: params.orderQty,
         price: params.price,
-        stopPx: params.stop_price,
-        ordType: params.order_type,
-        timeInForce: params.time_in_force,
-        execInst: params.exec_instructions
+        stopPx: params.stopPrice,
+        ordType: params.orderType,
+        timeInForce: params.timeInForce,
+        execInst: params.execInstructions
     })
 
     return postOrders
@@ -84,15 +84,15 @@ const setOrders = async (params) => {
  * Cancels an order when given and ID 
  * 
  * @param {object} keys An object containing the api_id and the api_secret
- * @param {stinrg} order_id The id of the order we want to kill, ussualy stored in the db
+ * @param {stinrg} orderId The id of the order we want to kill, ussualy stored in the db
  * 
  * @returns Info
  */
 const cancelOrders = async (params) => {
     const bitMexClient = await getClient(params.keys)
-    logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Cancellin Order with ID: ${params.order_id}`)
+    logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Cancellin Order with ID: ${params.orderId}`)
     const cancelOrder = await bitMexClient.makeRequest('DELETE', 'order', {
-        orderID: params.order_id,
+        orderID: params.orderId,
     })
 
     return cancelOrder
@@ -148,21 +148,20 @@ const getPositions = async (params) => {
  * @param {date} end_time The finishing point to retrieve the pricing ino from
  * @param {string} leverage The actual leverage we wish to change to [1-100]
  * 
- * @returns The priceppoints retrieved from the exchange
+ * @returns The price points retrieved from the exchange
  */
 const getHistory = async (params) => {
     const bitMexClient = await getClient(params.keys)
 
-    logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Retrieving PriceHistory from ${params.start_time} to ${params.end_time}`)
+    logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Retrieving PriceHistory from ${params.startTime} to ${params.endTime}`)
     const pricePoint = await bitMexClient.makeRequest('GET', 'trade/bucketed', {
-        binSize: params.bin_size,
+        binSize: params.binSize,
         reverse: false,
         count: 750,
-        startTime: params.start_time,
-        endTime: params.end_time,
+        startTime: params.startTime,
+        endTime: params.endTime,
         symbol: params.symbol
     })
-
 
     return pricePoint
 }
@@ -172,19 +171,19 @@ const getHistory = async (params) => {
  * 
  * @param keys An object containing the api_id and the api_secret
  * @param asset Name of the symbol we want to retrieve the information of
- * @param time_frame The candle size the info return should contain
+ * @param timeFrame The candle size the info return should contain
  */
 const streamPrice = async (params) => {
     const topic = "bitmexPriceStream"
 
     const bitMexClient = await getClient(params.keys)
 
-    logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Initialising stream for ${params.time_frame}${params.asset}`)
-    await bitMexClient.monitorStream(params.asset, `tradeBin${params.time_frame}`, async (data, e) => {
+    logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Initialising stream for ${params.timeFrame}${params.asset}`)
+    await bitMexClient.monitorStream(params.asset, `tradeBin${params.timeFrame}`, async (data, e) => {
         if (e) { 
             // Empty block 
          }
-        const symbol = params.time_frame + data.symbol
+        const symbol = params.timeFrame + data.symbol
 
         const streamingObject = {
             timestamp: data.timestamp,
@@ -208,25 +207,21 @@ const streamPrice = async (params) => {
  * @retuns A new client for the bot to connect
  */
 const getClient = async (params) => {
-    logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Creating a Bitmex client to retrieve data`)
-    const  client = new Promise(async (resolve, reject) =>{
         try {
+            logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Creating a Bitmex client to retrieve data`)
             const bitMexClient = new BitMexPlus({
                 apiKeyID: params.apiKeyID,
                 apiKeySecret: params.apiKeySecret
             })
 
-            bitMexClient.on('end', async (code) => { reject(code) });
-            bitMexClient.on('error', async (error) => { reject(error) });
+            bitMexClient.on('end', async (code) => { throw(code) });
+            bitMexClient.on('error', async (error) => { throw(error) });
 
-            resolve(bitMexClient)
+            return bitMexClient
         }
-        catch (e) { await errorHandling(e) }
-    })
-
-    const newClient = await client
-
-    return newClient
+        catch (e) { 
+            await errorHandling(e)
+        }
 }
 
 module.exports = { getMargin, getOrders, setOrders, cancelOrders, getHistory, getPositions, setLeverage, streamPrice }

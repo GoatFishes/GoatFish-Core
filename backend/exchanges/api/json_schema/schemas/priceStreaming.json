@@ -10,7 +10,7 @@
             "type": "string"
         },
         "timeFrame": {
-            "description": "time_frame to watch",
+            "description": "timeFrame to watch",
             "type": "string"
         },
         "asset": {
