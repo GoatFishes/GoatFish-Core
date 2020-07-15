@@ -14,8 +14,6 @@ const priceStreaming = require('./routes/priceStreaming.js')
 const { LOG_LEVELS, RESPONSE_CODES } = require('./utils/constants')
 const { formatErrorResponse } = require('./utils/formatErrorResponse')
 
-
-// Init kafka 
 const kafka = require('kafka-node')
 const { Producer } = kafka
 const client = new kafka.KafkaClient({ kafkaHost: 'kafka:9092' })

@@ -3,6 +3,7 @@
 #creating .env file
 touch ./backend/.env
 echo > ./backend/.env
+
 #getting current path
 CURRENT_PATH="$PWD"
 echo "CURRENT_PATH="$CURRENT_PATH > ./backend/.env

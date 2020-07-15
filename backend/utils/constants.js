@@ -5,18 +5,12 @@ const DB_PGUSER = 'postgres'
 const DB_PGPASSWORD = 'postgres'
 const DB_PGDATABASE = 'postgres'
 
-// Connection port for the backend of the app
-const API_PORT = 3002
-
-
-
 module.exports = {
     DB_PGPORT,
     DB_PGHOST,
     DB_PGUSER,
     DB_PGPASSWORD,
     DB_PGDATABASE,
-    API_PORT,
     LOG_LEVELS:{ 
         fatal: 'fatal', //0
         error: 'error', //1

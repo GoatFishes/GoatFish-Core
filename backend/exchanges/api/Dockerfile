@@ -1,6 +1,5 @@
 FROM node:12-alpine
 
-# The following is mostly for the api side
 RUN mkdir -p /usr/src/app
 
 WORKDIR /usr/src/app
