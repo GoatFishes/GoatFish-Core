@@ -8,8 +8,8 @@ services:
     ports:
       - 8002:8080
     networks:
-      - titan_backend  
+      - goatFish_backend  
 
 networks:
-  titan_backend:
+  goatFish_backend:
     external: true

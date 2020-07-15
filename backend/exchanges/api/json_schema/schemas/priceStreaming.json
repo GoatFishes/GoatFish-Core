@@ -9,8 +9,8 @@
             "description": "Exchange to initiate the price streaming for",
             "type": "string"
         },
-        "time_frame": {
-            "description": "time_frame to watch",
+        "timeFrame": {
+            "description": "timeFrame to watch",
             "type": "string"
         },
         "asset": {
@@ -20,7 +20,7 @@
     },
     "required": [
         "exchange",
-        "time_frame",
+        "timeFrame",
         "asset"
     ],
     "additionalProperties": false

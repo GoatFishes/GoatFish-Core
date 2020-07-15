@@ -74,7 +74,7 @@ module.exports = async () => {
             const PAIR = pair.join()
 
             logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Setting up containerised bot`)
-            exec(`curl --unix-socket /var/run/docker.sock -H "Content-Type: application/json" -d '{ "Image": "lucasxhy/strategy_baseline:0.0.11", "ExposedPorts": { "${PORT}/tcp": {} }, "HostConfig": { "Binds": ["database:/usr/src/app/utils/database","utils:/usr/src/app/utils:delegated","${process.env.CURRENT_PATH}/backend/bots/api/strategies/${botId}.js:/usr/src/app/strategies/${botId}.js"], "NetworkMode": "titan_backend", "PortBindings": { "${PORT}/tcp": [{ "HostPort": "${PORT}" }]}}, "Env": ["BOTNAME=${botId}", "PORT=${PORT}", "PAIR=${PAIR}"]}' -X POST http:/v1.4/containers/create?name=${botId}`,
+            exec(`curl --unix-socket /var/run/docker.sock -H "Content-Type: application/json" -d '{ "Image": "strategy_baseline", "ExposedPorts": { "${PORT}/tcp": {} }, "HostConfig": { "Binds": ["database:/usr/src/app/utils/database","utils:/usr/src/app/utils:delegated","${process.env.CURRENT_PATH}/backend/bots/api/strategies/${botId}.js:/usr/src/app/strategies/${botId}.js"], "NetworkMode": "goatFish_backend", "PortBindings": { "${PORT}/tcp": [{ "HostPort": "${PORT}" }]}}, "Env": ["BOTNAME=${botId}", "PORT=${PORT}", "PAIR=${PAIR}"]}' -X POST http:/v1.4/containers/create?name=${botId}`,
                 (err) => {
                     if (err) {
                         // empty

@@ -2,6 +2,7 @@ const uuid = require('uuid-random')
 const { fetchLinkBody } = require('./fetcher')
 const { marginFormula } = require('./analytics')
 const ExceptionHandler = require('./ExceptionHandler')
+const { LOG_LEVELS, RESPONSE_CODES } = require('./constants')
 const { insertOrder, insertPaperOrder, selectKeysByBotId } = require('./database/db')
 
 /**
@@ -39,16 +40,16 @@ const setLiveOrder = async (params) => {
         if (res.data.side != null &&
             res.data.price != null &&
             res.data.exchange != null &&
-            res.data.order_id != null &&
-            res.data.time_stamp != null &&
-            res.data.order_status != null &&
-            res.data.order_quantity != null) {
+            res.data.orderId != null &&
+            res.data.timeStamp != null &&
+            res.data.orderStatus != null &&
+            res.data.orderQuantity != null) {
 
             logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Calculating margin for the order`)
-            const margin = await marginFormula({ orderQty: orderBody.orderQty, price: orderBody.price, leverage: orderBody.leverage })
+            const margin = await marginFormula({ orderQty: orderBody.orderQty, price: orderBody.price, leverage: leverageObject[orderBody.symbol] })
 
             logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Insert successful order placement into the database`)
-            await insertOrder([process.env.BOTNAME, res.data.exchange, res.data.order_id, null, res.data.time_stamp, res.data.order_status, res.data.side, res.data.order_quantity, res.data.price, margin, leverageObject[orderBody.symbol], orderBody.orderType, null])
+            await insertOrder([process.env.BOTNAME, res.data.exchange, res.data.orderId, null, res.data.timeStamp, res.data.orderStatus, res.data.side, res.data.orderQuantity, res.data.price, margin, leverageObject[orderBody.symbol], orderBody.orderType, null])
         }
         else {
             await setLiveOrder(params)

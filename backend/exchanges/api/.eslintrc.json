@@ -1,0 +1,22 @@
+{
+    "extends": ["airbnb", "prettier", "plugin:node/recommended", "plugin:security/recommended"],
+    "plugins": ["prettier", "security"],
+    "rules": {
+      "no-console": "warn",
+      "no-await-in-loop":"off",
+      "func-names": "off",
+      "no-param-reassign": "off",
+      "no-underscore-dangle": "off",
+      "import/no-unresolved": "off",
+      "node/no-missing-require": "off",
+      "no-use-before-define":"off",
+      "import/newline-after-import":"off",
+      "import/order":"off",
+      "import/no-dynamic-require":"off",
+      "global-require":"off",
+      "radix":"off",
+      "consistent-return":"off", 
+      "security/detect-object-injection":"off", 
+      "no-async-promise-executor":"warn"
+    }
+  }

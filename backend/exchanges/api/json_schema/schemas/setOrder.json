@@ -5,7 +5,7 @@
     "description": "leverage json schema",
     "type": "object",
     "properties": {
-        "bot_id": {
+        "botId": {
             "description": "unique identifier for the bot",
             "type": "string"
         },
@@ -13,15 +13,11 @@
             "description": "symbol to modify the leverage",
             "type": "string"
         },
-        "exec_instructions": {
-            "description": "Optional execution instructions. Valid options: ParticipateDoNotInitiate, AllOrNone, MarkPrice, IndexPrice, LastPrice, Close, ReduceOnly, Fixed.",
-            "type": "string"
-        },
-        "order_type": {
+        "orderType": {
             "description": "Order type. Valid options: Market, Limit, Stop, StopLimit, MarketIfTouched, LimitIfTouched, Pegged.",
             "type": "string"
         },
-        "time_in_force": {
+        "timeInForce": {
             "description": "Time in force. Valid options: Day, GoodTillCancel, ImmediateOrCancel, FillOrKill.",
             "type": "string"
         },
@@ -29,7 +25,7 @@
             "description": "Optional limit price for 'Limit', 'StopLimit', and 'LimitIfTouched' orders.",
             "type": "number"
         },
-        "order_qty": {
+        "orderQty": {
             "description": "Order quantity in units of the instrument",
             "type": "number"
         },
@@ -39,12 +35,13 @@
         }
     },
     "required": [
-        "bot_id",
-        "symbol",        
-        "side",
-        "order_qty",       
-        "time_in_force",
-        "order_type"  
+        "botId",
+        "symbol",  
+        "orderType",
+        "timeInForce",
+        "price",
+        "orderQty",
+        "side"
         ],
     "additionalProperties": true
 }

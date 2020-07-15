@@ -9,9 +9,12 @@ const kafka = require('kafka-node'),
     producer = new Producer(client)
 
 const keys = {
-    "apiKeyID": "UrXvde3OcEZQEMZe5imiNp6a",
-    "apiKeySecret": "wtIf_By1-ScAWrToFA-ALOkWJ9sH9naJEj5eMqXQsxiRLzrC"
+    "apiKeyID": "QVBBDR7W4YdKi1bYB-p1Ml7O",
+    "apiKeySecret": "K4HFi8AQjk2PDytPh_V6gtX3KciIMuXtyn5iQ8UhRT-U41Hs"
 }
+
+sleep = m => new Promise(r => setTimeout(r, m))
+
 
 describe('Strategy Baseline', async () => {
     let body = { "botId": "defaultKeys" }
@@ -103,7 +106,7 @@ describe('Strategy Baseline', async () => {
             let res
 
             before(async () => {
-                let body = { "bin_size": "1m", "end_time": "2017-01-01T12:35:00.000Z", "symbol": "XBT", "bot_id": "defaultKeys" }
+                let body = { "binSize": "1m", "endTime": "2017-01-01T12:35:00.000Z", "symbol": "XBT", "botId": "defaultKeys" }
                 await fetchLinkBody("http://exchanges_api:3003/exchanges/backtest/price", body, "POST")
                 await sleep(1000)
             })

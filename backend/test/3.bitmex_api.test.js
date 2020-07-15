@@ -1,35 +1,17 @@
 const chai = require("chai")
 const expect = chai.expect
-const keys = require('./exchanges/api_key/keys')
 const { consumer } = require('./utils/kafkaConsumer')
-
 const { fetchLink, fetchLinkBody } = require('./utils/fetcher')
-const {
-    // Exchange Keys
-    insertExchangeKeys,
-    selectKeysByExchange,
+const { insertExchangeKeys, selectKeysByExchange, selectKeysByBotId, selectAllKeys, insertBotKeys, selectWebsocketByExchange, insertWebsocket, selectOrdersByStatus, insertOrder, selectAllPriceHistory, TruncateTables } = require('./utils/database/db')
 
-    // Bot Keys
-    selectKeysByBotId,
-    selectAllKeys,
-    insertBotKeys,
+const keys = {
+    "apiKeyID": "QVBBDR7W4YdKi1bYB-p1Ml7O",
+    "apiKeySecret": "K4HFi8AQjk2PDytPh_V6gtX3KciIMuXtyn5iQ8UhRT-U41Hs"
+}
 
-    // Websocket 
-    selectWebsocketByExchange,
-    insertWebsocket,
+sleep = m => new Promise(r => setTimeout(r, m))
 
-    // Orders
-    selectOrdersByStatus,
-    insertOrder,
-    
-    // PriceHistory
-    selectAllPriceHistory,
-
-    //All 
-    TruncateTables
-} = require('./utils/database/db')
-
-let order_id
+let orderId
 
 describe('Bitmex API', () => {
     describe('healthcheck', () => {
@@ -44,7 +26,6 @@ describe('Bitmex API', () => {
             it('Should push the correct data to Kafka', async () => {
                 let msg = await consumer("bitmexPriceStream")
                 let parsedMsg = JSON.parse(msg[0].value)
-
                 expect(parsedMsg).to.have.property("timestamp")
                 expect(parsedMsg).to.have.property("symbol")
                 expect(parsedMsg).to.have.property("open")
@@ -57,14 +38,15 @@ describe('Bitmex API', () => {
                 await TruncateTables()
             })
         })
+
         describe('Should add a second price stream', async () => {
             before(async () => {
                 //Add a memeber to the bots databse so we can compare results 
-                await insertExchangeKeys(["bitmex", keys.keys])
+                await insertExchangeKeys(["bitmex", keys])
             })
 
             it('Should succesfully call the /pricestream/add endpoint', async () => {
-                let body = { "exchange": "bitmex", "asset": "XBTUSD", "time_frame": "5m" }
+                let body = { "exchange": "bitmex", "asset": "XBTUSD", "timeFrame": "5m" }
                 res = await fetchLinkBody("http://exchanges_api:3003/exchanges/pricestream/add", body, "POST")
             })
 
@@ -72,7 +54,7 @@ describe('Bitmex API', () => {
                 expect(res).to.have.property('data');
                 expect(res.data).to.have.property('exchange');
                 expect(res.data).to.have.property('asset');
-                expect(res.data).to.have.property('time_frame');
+                expect(res.data).to.have.property('timeFrame');
             })
 
             after(async () => {
@@ -85,25 +67,25 @@ describe('Bitmex API', () => {
         describe('/price', async () => {
             before(async () => {
                 //Add a memeber to the bots databse so we can compare results 
-                await insertBotKeys(["defaultKeys", keys.keys, "bitmex"])
+                await insertBotKeys(["defaultKeys", keys, "bitmex"])
             })
 
             // Upload a new bot
             var res
             it('Should succesfully call the / endpoint', async () => {
-                let body = { "bin_size": "1m", "end_time": "2017-01-01T12:35:00.000Z", "symbol": "XBT", "bot_id": "defaultKeys" }
+                let body = { "binSize": "1m", "endTime": "2017-01-01T12:35:00.000Z", "symbol": "XBT", "botId": "defaultKeys" }
                 res = await fetchLinkBody("http://exchanges_api:3003/exchanges/backtest/price", body, "POST")
             })
 
-            it('Should persiste the information to the database', async () => {
+            it('Should persist the information to the database', async () => {
                 await sleep(500)
                 let data = await selectAllPriceHistory(["1m", "XBT", "bitmex"])
                 expect(data[0]).to.have.property('pair');
                 expect(data[0]).to.have.property('time_frame');
-                expect(data[0]).to.have.property('exchange');                
+                expect(data[0]).to.have.property('exchange');
                 expect(data[0]).to.have.property('_timestamp');
                 expect(data[0]).to.have.property('_open');
-                expect(data[0]).to.have.property('_close');                
+                expect(data[0]).to.have.property('_close');
                 expect(data[0]).to.have.property('_high');
                 expect(data[0]).to.have.property('_low');
                 expect(data[0]).to.have.property('_volume');
@@ -126,13 +108,13 @@ describe('Bitmex API', () => {
             let res
             let body
             it('Should succesfully call the /keys endpoint', async () => {
-                body = { "bot_id": "defaultKeys", "api_key_id": keys.keys.apiKeyID, "api_key_secret": keys.keys.apiKeySecret, "exchange": "bitmex" }
+                body = { "botId": "defaultKeys", "apiKeyId": keys.apiKeyID, "apiKeySecret": keys.apiKeySecret, "exchange": "bitmex" }
                 res = await fetchLinkBody("http://exchanges_api:3003/exchanges/key/upload/bots", body, "POST")
             })
 
             it('Should persist the new key to the database', async () => {
                 let botInfo = await selectAllKeys()
-                expect(body.bot_id).to.eql(botInfo[0].bot_id);
+                expect(body.botId).to.eql(botInfo[0].bot_id);
                 //await botInfo[0].key.socket.instance._events.close("1000")
             })
 
@@ -148,7 +130,7 @@ describe('Bitmex API', () => {
             let res
             let body
             it('Should succesfully call the /keys endpoint', async () => {
-                body = { "api_key_id": keys.keys.apiKeyID, "api_key_secret": keys.keys.apiKeySecret, "exchange": "bitmex" }
+                body = { "apiKeyId": keys.apiKeyID, "apiKeySecret": keys.apiKeySecret, "exchange": "bitmex" }
                 res = await fetchLinkBody("http://exchanges_api:3003/exchanges/key/upload/exchange", body, "POST")
             })
 
@@ -171,7 +153,7 @@ describe('Bitmex API', () => {
         describe('/', () => {
             before(async () => {
                 //Add a memeber to the bots databse so we can compare results 
-                await insertBotKeys(["defaultKeys", keys.keys, "bitmex"])
+                await insertBotKeys(["defaultKeys", keys, "bitmex"])
             })
 
             let res
@@ -180,7 +162,6 @@ describe('Bitmex API', () => {
             })
 
             it('Should push the correct data to Kafka', async () => {
-
                 let msg = await consumer("margin")
                 let parsedMsg = JSON.parse(msg[0].value)
 
@@ -205,7 +186,7 @@ describe('Bitmex API', () => {
         describe('/', () => {
             before(async () => {
                 //Add a memeber to the bots databse so we can compare results 
-                await insertBotKeys(["defaultKeys", keys.keys, "bitmex"])
+                await insertBotKeys(["defaultKeys", keys, "bitmex"])
             })
 
             let res
@@ -234,14 +215,14 @@ describe('Bitmex API', () => {
         describe('/set', () => {
             before(async () => {
                 //Add a memeber to the bots databse so we can compare results 
-                await insertBotKeys(["defaultKeys", keys.keys, "bitmex"])
+                await insertBotKeys(["defaultKeys", keys, "bitmex"])
                 body = {
-                    "bot_id": "defaultKeys",
+                    "botId": "defaultKeys",
                     "symbol": "XBTUSD",
-                    "order_type": "Limit",
-                    "time_in_force": "GoodTillCancel",
+                    "orderType": "Limit",
+                    "timeInForce": "GoodTillCancel",
                     "price": 8000,
-                    "order_qty": 10,
+                    "orderQty": 10,
                     "side": "Buy"
                 }
             })
@@ -252,13 +233,13 @@ describe('Bitmex API', () => {
             })
 
             it('Should push the correct order to the exchange', async () => {
-                order_id = res.data.order_id
+                orderId = res.data.orderId
                 expect(res.data).to.have.property('exchange');
-                expect(res.data).to.have.property('order_id');
-                expect(res.data).to.have.property('time_stamp');
-                expect(res.data).to.have.property('order_status');
+                expect(res.data).to.have.property('orderId');
+                expect(res.data).to.have.property('timeStamp');
+                expect(res.data).to.have.property('orderStatus');
                 expect(res.data).to.have.property('side');
-                expect(res.data).to.have.property('order_quantity');
+                expect(res.data).to.have.property('orderQuantity');
                 expect(res.data).to.have.property('price');
             })
 
@@ -270,13 +251,10 @@ describe('Bitmex API', () => {
         describe('/cancel', () => {
             before(async () => {
                 //Add a memeber to the bots databse so we can compare results 
-                await insertBotKeys(["defaultKeys", keys.keys, "bitmex"])
-                await insertOrder(["defaultKeys", "bitmex", order_id, null, "2019-08-08T01:04:28.939Z", "Open", "Buy", 1000, 8000, 4000, 10, "Limit", "10"])
+                await insertBotKeys(["defaultKeys", keys, "bitmex"])
+                await insertOrder(["defaultKeys", "bitmex", orderId, null, "2019-08-08T01:04:28.939Z", "Open", "Buy", 1000, 8000, 4000, 10, "Limit", "10"])
 
-                body = {
-                    "bot_id": "defaultKeys",
-                    "order_id": order_id,
-                }
+                body = { "botId": "defaultKeys", "orderId": orderId }
             })
 
             let res
@@ -286,18 +264,18 @@ describe('Bitmex API', () => {
 
             it('Should push the correct order to the exchange', async () => {
                 expect(res.data).to.have.property('exchange');
-                expect(res.data).to.have.property('order_id');
-                expect(res.data).to.have.property('time_stamp');
-                expect(res.data).to.have.property('order_status');
+                expect(res.data).to.have.property('orderId');
+                expect(res.data).to.have.property('timeStamp');
+                expect(res.data).to.have.property('orderStatus');
                 expect(res.data).to.have.property('side');
-                expect(res.data).to.have.property('order_quantity');
+                expect(res.data).to.have.property('orderQuantity');
                 expect(res.data).to.have.property('price');
                 expect(res.data.order_status).to.eql('Canceled');
             })
 
             it('Should update the state of the order', async () => {
                 let orderInfo = await selectOrdersByStatus(['Canceled'])
-                expect(orderInfo[0].order_id).to.eql(order_id)
+                expect(orderInfo[0].orderId).to.eql(orderId)
             })
 
             after(async () => {
@@ -310,7 +288,7 @@ describe('Bitmex API', () => {
         describe('/', () => {
             before(async () => {
                 //Add a memeber to the bots databse so we can compare results 
-                await insertBotKeys(["defaultKeys", keys.keys, "bitmex"])
+                await insertBotKeys(["defaultKeys", keys, "bitmex"])
             })
 
             let res
@@ -342,12 +320,12 @@ describe('Bitmex API', () => {
         describe('/leverage', () => {
             before(async () => {
                 //Add a memeber to the bots databse so we can compare results 
-                await insertBotKeys(["defaultKeys", keys.keys, "bitmex"])
+                await insertBotKeys(["defaultKeys", keys, "bitmex"])
             })
 
             let res
             it('Should succesfully call the /leverage endpoint', async () => {
-                body = { "bot_id": "defaultKeys", "symbol": "XBTUSD", "leverage": 1 }
+                body = { "botId": "defaultKeys", "symbol": "XBTUSD", "leverage": 1 }
                 res = await fetchLinkBody("http://exchanges_api:3003/exchanges/positions/leverage", body, "POST")
             })
 
@@ -360,7 +338,7 @@ describe('Bitmex API', () => {
     describe('database', () => {
         describe('exchanges', () => {
             it('Should upload the keys of an exchange to the databse', async () => {
-                await insertExchangeKeys(["bitmex", keys.keys])
+                await insertExchangeKeys(["bitmex", keys])
                 let res = await selectAllKeys()
                 expect(res.length).to.equal(1)
             })
@@ -374,7 +352,7 @@ describe('Bitmex API', () => {
             })
 
             it('Should not insert a second key into the database', async () => {
-                let res = await insertExchangeKeys(["bitmex", keys.keys])
+                let res = await insertExchangeKeys(["bitmex", keys])
                 res = await selectKeysByExchange(["bitmex"])
                 expect(res.length).to.equal(1)
             })
@@ -385,7 +363,7 @@ describe('Bitmex API', () => {
 
         describe('bots', () => {
             it('Should upload the keys of an exchange to the databse', async () => {
-                await insertBotKeys(["defaultKeys", keys.keys, "bitmex"])
+                await insertBotKeys(["defaultKeys", keys, "bitmex"])
                 let res = await selectAllKeys()
                 expect(res.length).to.equal(1)
             })
@@ -400,7 +378,7 @@ describe('Bitmex API', () => {
             })
 
             it('Should not insert a second key into the database', async () => {
-                let res = await insertExchangeKeys(["bitmex", keys.keys])
+                let res = await insertExchangeKeys(["bitmex", keys])
                 res = await selectKeysByExchange(["bitmex"])
                 expect(res.length).to.equal(1)
             })

@@ -5,11 +5,11 @@
     "description": "backtest json schema",
     "type": "object",
     "properties": {
-        "bin_size": {
+        "binSize": {
             "description": "Bin size of the trades",
             "type": "string"
         },
-        "end_time": {
+        "endTime": {
             "description": "End time of the tradeBin",
             "type": "string"
         },
@@ -17,16 +17,16 @@
             "description": "Symbol of the tradeBin",
             "type": "string"
         },
-        "bot_id": {
+        "botId": {
             "description": "The bot we will be using the historic data on",
             "type": "string"
         }
     },
     "required": [
-        "bin_size",
-        "end_time",
+        "binSize",
+        "endTime",
         "symbol",
-        "bot_id"
+        "botId"
     ],
     "additionalProperties": false
 }

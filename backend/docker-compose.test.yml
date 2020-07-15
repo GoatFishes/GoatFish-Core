@@ -10,7 +10,7 @@ services:
       - exchanges_api
       - bots_api
     networks:
-      - titan_backend
+      - goatFish_backend
     volumes:
       - ./bots/api:/usr/src/app/bots:delegated
       - ./exchanges/api:/usr/src/app/exchanges:delegated
@@ -23,7 +23,7 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: "$PWD/postgres/connection"
+      device: "$PWD/utils/database"
       o: bind
   utils_test:
     name: utils
@@ -34,5 +34,5 @@ volumes:
       o: bind
 
 networks:
-  titan_backend:
+  goatFish_backend:
     external: true

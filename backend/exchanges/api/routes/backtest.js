@@ -2,103 +2,99 @@ const Koa = require('koa')
 const route = require('koa-route')
 const uuid = require('uuid-random')
 const logEvent = require('../utils/logger')
-const ExceptionHandler = require('../utils/ExceptionHandler')
-const { LOG_LEVELS, RESPONSE_CODES } = require('../utils/constants')
 const { kafkaProduce } = require('../utils/kafkaProducer')
 const { getCurrentTime } = require('../utils/timeHandler')
+const ExceptionHandler = require('../utils/ExceptionHandler')
+const { LOG_LEVELS, RESPONSE_CODES } = require('../utils/constants')
 const { selectKeysByBotId, selectLatestPriceHistory, insertPriceHistory } = require('../utils/database/db')
-
-sleep = m => new Promise(r => setTimeout(r, m))
-
 
 module.exports = async () => {
     const app = new Koa()
 
     /**
-     * Summary    Query the historic price of a specific asset for a given time_frame.
-     * @param {string} bin_size bin_size of the candles: 1m, 15m, 1h, 1d 
-     * @param {string} end_time The time you would like to stop retriving the price data  
+     * Query the historic price of a specific asset for a given time_frame
+     * 
+     * @param {string} binSize binSize of the candles: 1m, 15m, 1h, 1d 
+     * @param {string} endTime The time you would like to stop retriving the price data  
      * @param {string} symbol The asset we want to retrive the historic data of
-     * @param {string} bot_id The bot we will be using the historic data on
+     * @param {string} botId The bot we will be using the historic data on
+     * 
+     * @returns 
      */
     app.use(route.post('/price', async (ctx) => {
-        let uuid_process = await uuid()
-
         try {
+
+            const uuidProcess = await uuid()
             let order
             let progress
-            let end_time
-            let start_time
+            let endTime
+            let startTime
             let progressObjectString
-            let progressTopic = "requestState"
+            const progressTopic = "requestState"
 
             logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Validating the payload`)
             const payload = ctx.checkPayload(ctx, 'backtest')
-            if (!payload) {
-                throw new ExceptionHandler(RESPONSE_CODES.APPLICATION_ERROR, 'PAYLOAD ISSUE : ' + global.jsonErrorMessage)
+
+            const keys = await selectKeysByBotId([payload.botId])
+            const exchangeModule = require(`../exchanges/${keys[0].exchange}/${keys[0].exchange}`)
+
+            // **************************** //
+            //        Time structure        //
+            //          ISO 8601            //
+            // **************************** //
+
+            const priceHistory = await selectLatestPriceHistory([payload.binSize, payload.symbol, keys[0].exchange])
+
+            if (priceHistory.length) {
+                startTime = (priceHistory[0]._timestamp).toISOString();
+            } else {
+                startTime = "2017-01-01T12:30:00.000Z"
             }
 
-            let backtest = new Promise(async (resolve, reject) => {
-                let keys = await selectKeysByBotId([payload.bot_id])
-                const exchangeModule = require(`../exchanges/${keys[0].exchange}/${keys[0].exchange}`)
+            if (payload.endTime != null) {
+                endTime = payload.endTime
+            } else {
+                endTime = await getCurrentTime()
+            }
 
-                //****************************//
-                //        Time structure      //
-                //          ISO 8601          //
-                //****************************//
+            // Set a refereence to the start date since this will change through out the lifecycle of the request
+            const timeRef = startTime
 
-                let priceHistory = await selectLatestPriceHistory([payload.bin_size, payload.symbol, keys[0].exchange])
+            logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Process with UIID: ${uuidProcess} has started the backtesting task`)
 
-                if (priceHistory.length) {
-                    start_time = (priceHistory[0]._timestamp).toISOString();
-                } else { start_time = "2017-01-01T12:30:00.000Z" }
+            while (startTime < endTime) {
 
-                if (payload.end_time != null) { end_time = payload.end_time } else { end_time = await getCurrentTime() }
-
-                // Set a refereence to the start date since this will change through out the lifecycle of the request
-                let timeRef = start_time
-
-                logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Process with UIID: ${uuid_process} has started the backtesting task`)
-
-                while (start_time < end_time) {
-
-                    let params = {
-                        keys: keys[0].bot_key,
-                        bin_size: payload.bin_size,
-                        start_time: start_time,
-                        end_time: end_time,
-                        symbol: payload.symbol
-                    }
-
-                    order = await exchangeModule.getHistory(params)
-
-                    for (let i = 0; i < order.length; i++) {
-                        await insertPriceHistory([params.symbol, payload.bin_size, keys[0].exchange, order[i].timestamp, order[i].open, order[i].close, order[i].high, order[i].low, order[i].volume])
-                    }
-
-                    progress = ((start_time - timeRef) / (end_time - timeRef) * 100).toFixed(2)
-                    progressObjectString = { progress: progress, uuid: uuid_process }
-                    await kafkaProduce(progressTopic, progressObjectString)
-                    start_time = order[order.length - 1].timestamp
+                const params = {
+                    keys: keys[0].bot_key,
+                    binSize: payload.binSize,
+                    startTime,
+                    endTime,
+                    symbol: payload.symbol
                 }
 
-                progressObjectString = { progress: 100, uuid: uuid_process }
+                order = await exchangeModule.getHistory(params)
+                for (let i = 0; i < order.length; i += 1) {
+                    await insertPriceHistory([params.symbol, payload.binSize, keys[0].exchange, order[i].timestamp, order[i].open, order[i].close, order[i].high, order[i].low, order[i].volume])
+                }
+
+                progress = ((startTime - timeRef) / (endTime - timeRef) * 100).toFixed(2)
+                progressObjectString = { progress, uuid: uuidProcess }
                 await kafkaProduce(progressTopic, progressObjectString)
-                logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Process with UIID: ${uuid_process} has completed the backtesting task`)
-                resolve()
-            })
-
-            backtest
-
-        } catch (e) { throw new ExceptionHandler(RESPONSE_CODES.APPLICATION_ERROR, 'Backtesting failed with fatal error: ' + e) }
-
-        ctx.status = 202
-        ctx.body = {
-            data: {
-                uuid: uuid_process,
-                message: "Processing the backtest"
+                startTime = order[order.length - 1].timestamp
             }
-        }
+
+            progressObjectString = { progress: 100, uuid: uuidProcess }
+            await kafkaProduce(progressTopic, progressObjectString)
+            logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Process with UIID: ${uuidProcess} has completed the backtesting task`)
+
+            ctx.status = 202
+            ctx.body = {
+                data: {
+                    uuid: uuidProcess,
+                    message: "Processing the backtest"
+                }
+            }
+        } catch (e) { throw new ExceptionHandler(RESPONSE_CODES.APPLICATION_ERROR, `backtest price points retrieval failed with fatal error: ${e}`) }
     }))
 
     return app

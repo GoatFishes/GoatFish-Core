@@ -5,18 +5,18 @@
     "description": "Close order json schema",
     "type": "object",
     "properties": {
-        "bot_id": {
+        "botId": {
             "description": "unique identifier for the bot",
             "type": "string"
         },
-        "order_id": {
+        "orderId": {
             "description": "Unique id for the order we want to cancel",
             "type": "string"
         }
     },
     "required": [
-        "bot_id",
-        "order_id"
+        "botId",
+        "orderId"
     ],
     "additionalProperties": false
 }
