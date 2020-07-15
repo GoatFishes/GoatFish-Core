@@ -10,9 +10,7 @@ class ExceptionHandler extends Error {
         this.error = error;
   
         this.response_code = response_code;
-  
-        //logEvent(LOG_LEVELS.error, response_code, error)
-  
+    
         throw(this)
     }
   }
