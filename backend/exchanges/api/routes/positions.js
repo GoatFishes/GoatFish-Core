@@ -26,7 +26,7 @@ module.exports = async () => {
             ctx.checkPayload(ctx, 'empty')
 
             logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Retrieving bot keys`)
-            if (botId === "null") {
+            if (botId === undefined) {
                 keys = await selectAllKeys()
             } else {
                 keys = await selectKeysByBotId([botId])

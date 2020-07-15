@@ -30,8 +30,8 @@ const getMargin = async (params) => {
  */
 const getOrders = async (params) => {
     const bitMexClient = await getClient(params.keys)
-
-    logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Retrieving ${params.params.type} Orders from Bitmex`)
+    
+    logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Retrieving ${params.type} Orders from Bitmex`)
     const getOrder = await bitMexClient.makeRequest('GET', 'order', {
         count: 500,
         start_time: params.date,

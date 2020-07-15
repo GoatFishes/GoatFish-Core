@@ -2,7 +2,7 @@ const chai = require("chai")
 const expect = chai.expect
 const { consumer } = require('./utils/kafkaConsumer')
 const { fetchLink, fetchLinkBody } = require('./utils/fetcher')
-const { insertExchangeKeys, selectKeysByExchange, selectKeysByBotId, selectAllKeys, insertBotKeys, selectWebsocketByExchange, insertWebsocket, selectOrdersByStatus,insertOrder, selectAllPriceHistory, TruncateTables } = require('./utils/database/db')
+const { insertExchangeKeys, selectKeysByExchange, selectKeysByBotId, selectAllKeys, insertBotKeys, selectWebsocketByExchange, insertWebsocket, selectOrdersByStatus, insertOrder, selectAllPriceHistory, TruncateTables } = require('./utils/database/db')
 
 const keys = {
     "apiKeyID": "QVBBDR7W4YdKi1bYB-p1Ml7O",
@@ -82,10 +82,10 @@ describe('Bitmex API', () => {
                 let data = await selectAllPriceHistory(["1m", "XBT", "bitmex"])
                 expect(data[0]).to.have.property('pair');
                 expect(data[0]).to.have.property('time_frame');
-                expect(data[0]).to.have.property('exchange');                
+                expect(data[0]).to.have.property('exchange');
                 expect(data[0]).to.have.property('_timestamp');
                 expect(data[0]).to.have.property('_open');
-                expect(data[0]).to.have.property('_close');                
+                expect(data[0]).to.have.property('_close');
                 expect(data[0]).to.have.property('_high');
                 expect(data[0]).to.have.property('_low');
                 expect(data[0]).to.have.property('_volume');
@@ -162,7 +162,6 @@ describe('Bitmex API', () => {
             })
 
             it('Should push the correct data to Kafka', async () => {
-
                 let msg = await consumer("margin")
                 let parsedMsg = JSON.parse(msg[0].value)
 

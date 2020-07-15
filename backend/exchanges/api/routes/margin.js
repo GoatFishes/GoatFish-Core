@@ -24,13 +24,14 @@ module.exports = async () => {
             logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Validating the payload`)
             ctx.checkPayload(ctx, 'empty')
 
-            if (botId === "null"){
+            logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Retrieving access keys`)
+            if (botId === undefined){
                 keys = await selectAllKeys()
             } else {
                 keys = await selectKeysByBotId([botId])
             }
-            for (let i = 0; i < keys.length; i += 1) {
 
+            for (let i = 0; i < keys.length; i += 1) {
                 logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Loading the ${keys[i].exchange} module`)
                 exchangeModule = require(`../exchanges/${keys[i].exchange}/${keys[i].exchange}`)
 

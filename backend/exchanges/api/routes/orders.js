@@ -21,6 +21,7 @@ module.exports = async () => {
         try {
             let order = []
             const total = []
+
             const type = await ctx.request.query.type
             const botId = await ctx.request.query.botId
 
@@ -29,7 +30,7 @@ module.exports = async () => {
 
             let keys
             logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Select bot keys`)
-            if (botId === "null") {
+            if (botId === undefined) {
                 keys = await selectAllKeys()
             } else {
                 keys = await selectKeysByBotId([botId])
@@ -185,19 +186,23 @@ const ordersRecursion = async (params) => {
     const { keys, date, exchangeModule, total } = params
 
     let orders = await exchangeModule.getOrders({ keys, date })
-    const ordersLength = orders.length
-    const latest = orders[ordersLength - 1].timestamp
+    console.log(orders.length)
+    const latest = orders[orders.length - 1].timestamp
+    console.log(latest)
     orders = [].concat(orders)
     total.push(orders)
+    for(let i = 0 ; orders.length<i ; i+=1){
+        console.log(orders[i].timestamp)
+    }
 
     // 500 is the maximum length allowed by the API. This nuber will default to the LCM of all the exhanges.
-    if (ordersLength < 500) {
+    if (orders.length < 500) {
         logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `All orders retrived`)
         return orders
     }
 
-    logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Call for more orders`)
-    await ordersRecursion({ date: latest, keys })
+    // logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Call for more orders`)
+    // await ordersRecursion({ date: latest, keys, exchangeModule, total })
 
     const updatedValues = {
         orders,
