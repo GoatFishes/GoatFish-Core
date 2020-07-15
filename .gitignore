@@ -3,3 +3,5 @@
 /backend/exchanges/api/api/node_modules/bitmex-realtime-api/lib/ReconnectingSocket.js
 /backend/.env
 /coverage
+
+.DS_Store

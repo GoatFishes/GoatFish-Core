@@ -1,5 +1,5 @@
 install:	
-	sh init.sh
+	sh ./backend/init.sh
 
 	# Deploy external project network
 	-- docker network create goatFish_backend
@@ -24,14 +24,14 @@ test:
 
 	@echo "Fingers crossed then!\n" 
 
-	sh init.sh
+	sh ./backend/init.sh
 
 	rm -rf ./backend/postgres/data
 
 	# Deploy external project network
 	-- docker network create goatFish_backend
 	
-		# Bring the project down
+	# Bring the project down
 	-- cd backend && docker-compose -f docker-compose.yml down
 	-- cd backend && docker-compose -f docker-compose.test.yml down	
 	-- cd backend && docker-compose -f docker-compose.debug.yml down	
