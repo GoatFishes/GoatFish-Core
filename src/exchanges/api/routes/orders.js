@@ -181,19 +181,16 @@ module.exports = async () => {
  * @param {Array} total An array persisted trhough out the rescursion keeping track of all the orders retrieved
  * 
  * @returns An object specifying all the given orders
+ * 
+ * @todo Fix this so that it return my orders not all the ones in existence
  */
 const ordersRecursion = async (params) => {
     const { keys, date, exchangeModule, total } = params
 
     let orders = await exchangeModule.getOrders({ keys, date })
-    console.log(orders.length)
-    const latest = orders[orders.length - 1].timestamp
-    console.log(latest)
+    // const latest = orders[orders.length - 1].timestamp
     orders = [].concat(orders)
     total.push(orders)
-    for(let i = 0 ; orders.length<i ; i+=1){
-        console.log(orders[i].timestamp)
-    }
 
     // 500 is the maximum length allowed by the API. This nuber will default to the LCM of all the exhanges.
     if (orders.length < 500) {

@@ -10,8 +10,11 @@ module.exports = async () => {
     const app = new Koa()
 
     /**
-     * Summary    Retrive The margin from all the different bots and commit the results to kafka
+     * Retrive The margin from all the different bots and commit the results to kafka
+     * 
      * @param {string} botId Unique name to identifyt the bot
+     * 
+     * @returns
      */
     app.use(route.get('/', async (ctx) => {
         try {

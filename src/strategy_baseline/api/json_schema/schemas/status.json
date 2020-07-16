@@ -1,0 +1,8 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "status.schema.json",
+    "title": "status",
+    "description": "Set status for the strategy",
+    "required": [],
+    "additionalProperties": true
+}
