@@ -9,7 +9,7 @@ module.exports = async () => {
     const app = new Koa()
 
     /**
-     * Uploads an set of default bitmex API keys to the database for miscellaneous operation
+     * Uploads a set of default bitmex API keys to the database for miscellaneous operation
      * 
      * @param {string} botId Unique name for the bot
      * @param {string} apiKeyId Key id for the API
@@ -31,7 +31,7 @@ module.exports = async () => {
             logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Inserting bot keys into the database`)
             await insertBotKeys([payload.botId, api, payload.exchange])
         }
-        catch (e) { throw new ExceptionHandler(RESPONSE_CODES.APPLICATION_ERROR, `UPLOAD ISSUE : ${e}`) }
+        catch (e) { throw new ExceptionHandler(RESPONSE_CODES.APPLICATION_ERROR, `Upload issue : ${e}`) }
         ctx.status = 200
         ctx.body = {
             data: "OK"
@@ -39,7 +39,7 @@ module.exports = async () => {
     }))
 
     /**
-     * Uploads an set of default bitmex API keys to the database for miscellaneous operation
+     * Uploads a set of default bitmex API keys to the database for miscellaneous operation
      * 
      * @param {string} exchange Exchange the api keys belong to
      * @param {string} apiKeyId Key id for the API

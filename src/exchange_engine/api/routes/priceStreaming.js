@@ -13,7 +13,7 @@ module.exports = async () => {
      * 
      * @param {string} exchange Exchange the api keys belong to
      * @param {string} asset Name of the pair we want to start watching
-     * @param {string} time_frame candle size and frequency we want to watch for the specified asset
+     * @param {string} timeFrame Candle size and frequency we want to watch for the specified asset
      * 
      * @returns An object specifying the websocket information that we just added
      */

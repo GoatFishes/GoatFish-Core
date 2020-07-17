@@ -129,7 +129,7 @@ module.exports = async () => {
      * Cancel a given Order
      * 
      * @param {string}  botId Unique name to identify the bot
-     * @param {string}  orderId Order side
+     * @param {string}  orderId Order id
      * 
      * @returns An Object specifying all the details for the correct cancellation of an order
      */
