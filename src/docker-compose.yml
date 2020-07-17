@@ -52,6 +52,15 @@ services:
     networks:
       - goatFish_backend
 
+  dbadmin:
+    image: adminer
+    restart: always
+    container_name: postgres_admin
+    ports:
+      - 8002:8080
+    networks:
+      - goatFish_backend  
+
   # APIs
   exchanges_api:
     build: ./exchanges/api
