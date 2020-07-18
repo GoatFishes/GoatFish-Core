@@ -15,4 +15,4 @@
   
 </p>
 
-[Documentation](https://lucas-rodriguez-benitez.gitbook.io/lucas/)
+[Documentation](https://docs.goatfish.app/)
