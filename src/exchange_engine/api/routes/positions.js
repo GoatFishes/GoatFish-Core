@@ -34,7 +34,7 @@ module.exports = async () => {
 
             for (let i = 0; i < keys.length; i += 1) {
                 logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Loading the ${keys[i].exchange} module`)
-                const exchangeModule = require(`../exchanges/${keys[i].exchange}/${keys[i].exchange}`)
+                const exchangeModule = require(`../exchange_engine/${keys[i].exchange}/${keys[i].exchange}`)
 
                 const key = keys[i].bot_key
                 logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Getting the open positions for ${keys[i].exchange}`)
@@ -74,7 +74,7 @@ module.exports = async () => {
             for (let i = 0; i < keys.length; i+=1) {
                 logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Loading the ${keys[i].exchange} module`)
 
-                const exchangeModule = require(`../exchanges/${keys[i].exchange}/${keys[i].exchange}`)
+                const exchangeModule = require(`../exchange_engine/${keys[i].exchange}/${keys[i].exchange}`)
 
                 const key = keys[i].bot_key
 

@@ -4,8 +4,7 @@
   "description": "Loads the dependencies for the bots_api endpoints",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
-    "test": "mocha --slow 1 --timeout 5000 --colors ./tests/*.js"
+    "start": "node app.js"
   },
   "author": "LucasRodriguez",
   "license": "ISC",
@@ -27,9 +26,6 @@
   },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
-    "chai": "^4.2.0",
-    "chai-as-promised": "^7.1.1",
-    "chai-http": "^4.3.0",
     "eslint": "^7.3.0",
     "eslint-config-airbnb": "^18.2.0",
     "eslint-config-airbnb-base": "^14.2.0",
@@ -38,7 +34,6 @@
     "eslint-plugin-jsx-a11y": "^6.3.1",
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-react": "^7.20.0",
-    "mocha": "^7.0.1",
     "prettier": "^2.0.5"
   }
 }

@@ -39,7 +39,7 @@ module.exports = async () => {
             for (let i = 0; i < keys.length; i += 1) {
                 logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Loading the ${keys[i].exchange} module`)
 
-                const exchangeModule = require(`../exchanges/${keys[i].exchange}/${keys[i].exchange}`)
+                const exchangeModule = require(`../exchange_engine/${keys[i].exchange}/${keys[i].exchange}`)
 
                 logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Getting the latest order for ${keys[i].exchange}`)
 
@@ -99,7 +99,7 @@ module.exports = async () => {
             const keys = await selectKeysByBotId([payload.botId])
 
             logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Loading the ${keys[0].exchange} module`)
-            const exchangeModule = require(`../exchanges/${keys[0].exchange}/${keys[0].exchange}`)
+            const exchangeModule = require(`../exchange_engine/${keys[0].exchange}/${keys[0].exchange}`)
 
             const key = keys[0].bot_key
 
@@ -142,7 +142,7 @@ module.exports = async () => {
 
             logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Loading the ${keys[0].exchange} module`)
 
-            const exchangeModule = require(`../exchanges/${keys[0].exchange}/${keys[0].exchange}`)
+            const exchangeModule = require(`../exchange_engine/${keys[0].exchange}/${keys[0].exchange}`)
 
             const key = keys[0].bot_key
 

@@ -1,5 +1,12 @@
-const chai = require("chai")
+const chai = require('chai')
+const chaiHttp = require('chai-http')
 const expect = chai.expect
+chai.use(chaiHttp)
+
+const main = require('./bot_manager/app')
+let server
+
+
 const { fetchLink, fetchLinkBody } = require('./utils/fetcher')
 const {
     // Keys
@@ -56,9 +63,25 @@ const keys = {
 sleep = m => new Promise(r => setTimeout(r, m))
 
 describe('Bots API', () => {
+    before(async () => {
+        const app = await main()
+        server = app.listen(3001)
+    })
+    after(() => {
+        server.close()
+    })
     describe('healthcheck', () => {
+        var res
+
+        before(async () => {
+            res = await chai
+                .request(server)
+                .get('/bots/healthcheck')
+        })
+
         it('Should return 200 when calling /healthcheck for the container', async () => {
-            res = await fetchLink(`http://bots_api:3002/bots/healthcheck`, "GET")
+            console.log(res)
+            expect(res).to.have.status(200)
             expect(JSON.stringify(res)).to.eql('{"data":"OK"}');
         })
     })
@@ -164,7 +187,7 @@ module.exports = { strategy }
             })
             let res
             it('Should succesfully call the / endpoint', async () => {
-               res = await fetchLink("http://bots_api:3002/bots/margin", "GET")
+                res = await fetchLink("http://bots_api:3002/bots/margin", "GET")
             })
 
             it('Should return the correct response', () => {
