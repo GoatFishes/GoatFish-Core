@@ -36,7 +36,7 @@ module.exports = async () => {
             const payload = ctx.checkPayload(ctx, 'backtest')
 
             const keys = await selectKeysByBotId([payload.botId])
-            const exchangeModule = require(`../exchanges/${keys[0].exchange}/${keys[0].exchange}`)
+            const exchangeModule = require(`../exchange_engine/${keys[0].exchange}/${keys[0].exchange}`)
 
             // **************************** //
             //        Time structure        //

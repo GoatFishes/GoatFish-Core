@@ -10,10 +10,10 @@ services:
       - exchanges_api
       - bots_api
     networks:
-      - goatFish_backend
+      - goatFish_backend_test
     volumes:
-      - ./bots/api:/usr/src/app/bots:delegated
-      - ./exchanges/api:/usr/src/app/exchanges:delegated
+      - ./bot_manager/api:/usr/src/app/bot_manager:delegated
+      - ./exchange_engine/api:/usr/src/app/exchange_engine:delegated
       - ./strategy_baseline/api:/usr/src/app/strategy_baseline:delegated
       - utils_test:/usr/src/app/utils:delegated
       - database_test:/usr/src/app/utils/database:delegated
@@ -24,7 +24,7 @@ services:
     ports:
       - 2181
     networks:
-      - goatFish_backend
+      - goatFish_backend_test
       
   kafka:
     image: wurstmeister/kafka:latest
@@ -50,7 +50,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:delegated
     networks:
-      - goatFish_backend
+      - goatFish_backend_test
     
   # Database
   postgres:
@@ -65,19 +65,19 @@ services:
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
     networks:
-      - goatFish_backend
+      - goatFish_backend_test
     
 
 volumes:
   database_test:
-    name: database
+    name: database_test
     driver: local
     driver_opts:
       type: none
       device: "$PWD/utils/database"
       o: bind
   utils_test:
-    name: utils
+    name: utils_test
     driver: local
     driver_opts:
       type: none
@@ -85,5 +85,5 @@ volumes:
       o: bind
 
 networks:
-  goatFish_backend:
+  goatFish_backend_test:
     external: true

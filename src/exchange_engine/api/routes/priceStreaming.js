@@ -29,7 +29,7 @@ module.exports = async () => {
                 const exchangeInfo = await selectKeysByExchange([payload.exchange])
 
                 logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Loading exchange module`)
-                const exchangeModule = require(`../exchanges/${exchangeInfo[0].exchange}/${exchangeInfo[0].exchange}`)
+                const exchangeModule = require(`../exchange_engine/${exchangeInfo[0].exchange}/${exchangeInfo[0].exchange}`)
 
                 logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Calling the initiliazation of price stream for ${payload.timeFrame}${payload.asset}`)
                 const params = { "keys": exchangeInfo[0].exchange_key, "timeFrame": payload.timeFrame, "asset": payload.asset }

@@ -36,7 +36,7 @@ module.exports = async () => {
 
             for (let i = 0; i < keys.length; i += 1) {
                 logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Loading the ${keys[i].exchange} module`)
-                exchangeModule = require(`../exchanges/${keys[i].exchange}/${keys[i].exchange}`)
+                exchangeModule = require(`../exchange_engine/${keys[i].exchange}/${keys[i].exchange}`)
 
                 logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Getting margin from ${keys[i].exchange} api`)
                 const params = {

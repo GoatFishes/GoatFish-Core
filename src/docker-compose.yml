@@ -63,7 +63,7 @@ services:
 
   # APIs
   exchanges_api:
-    build: ./exchanges/api
+    build: ./exchange_engine/api
     image: exchanges_api
     restart: always
     container_name: exchanges_api
@@ -80,13 +80,13 @@ services:
     networks:
       - goatFish_backend
     volumes:
-      - ./exchanges/api/WebSocket.js:/usr/src/app/node_modules/bitmex-realtime-api/lib/ReconnectingSocket.js:delegated
+      - ./exchange_engine/api/WebSocket.js:/usr/src/app/node_modules/bitmex-realtime-api/lib/ReconnectingSocket.js:delegated
       - utils:/usr/src/app/utils:delegated
       - database:/usr/src/app/utils/database:delegated
       - /var/run/docker.sock:/var/run/docker.sock
   
   bots_api:
-    build: ./bots/api
+    build: ./bot_manager/api
     image: bots_api
     restart: always
     container_name: bots_api
@@ -103,7 +103,7 @@ services:
     networks:
       - goatFish_backend
     volumes:
-      - ./bots/api/strategies:/usr/src/app/strategies
+      - ./bot_manager/api/strategies:/usr/src/app/strategies
       - utils:/usr/src/app/utils:delegated
       - database:/usr/src/app/utils/database:delegated
       - /var/run/docker.sock:/var/run/docker.sock
@@ -117,7 +117,7 @@ services:
     networks:
       - goatFish_backend
     volumes:
-      - ./bots/api/strategies:/usr/src/app/strategies
+      - ./bot_manager/api/strategies:/usr/src/app/strategies
       - utils:/usr/src/app/utils:delegated
       - database:/usr/src/app/utils/database:delegated
       - /var/run/docker.sock:/var/run/docker.sock
