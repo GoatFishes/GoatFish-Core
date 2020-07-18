@@ -37,7 +37,7 @@ Run the installation script:
 
 At this point a clean install of the CLI should be available
 
-### Testing 
+## Testing 
 
 It is highly recommended to test the application before running any startegies. 
 
