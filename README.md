@@ -25,7 +25,7 @@
 [Make](https://askubuntu.com/questions/161104/how-do-i-install-make), [Git](https://git-scm.com/), [Node](https://nodejs.org/en/download), [Docker](https://docs.docker.com/get-docker/), 2 set of API keys for [Bitmex](https://www.bitmex.com/register/uMNVsK) or any other of the supported exchanges
 
 
-### Application set up
+## Application set up
 
 Create a local copy of the project in your server or localhost:
 
@@ -54,7 +54,7 @@ The CLI should Return the number of passed tests
 Were any of the the tests fail, please refer to the [trouble shooting guide](https://www.youtube.com/watch?v=dQw4w9WgXcQ&feature=youtu.be)
 
 
-### Strategy Setup
+## Strategy Setup
 
 To set up your first strategy firstly run:
 
