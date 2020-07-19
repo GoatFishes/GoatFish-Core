@@ -1,7 +1,7 @@
 {
-  "name": "bots_api",
+  "name": "bot_manager",
   "version": "1.0.0",
-  "description": "Loads the dependencies for the bots_api endpoints",
+  "description": "Loads the dependencies for the bot_manager endpoints",
   "main": "app.js",
   "scripts": {
     "start": "node app.js"

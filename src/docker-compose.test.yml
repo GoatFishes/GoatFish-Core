@@ -6,16 +6,16 @@ services:
     image: test_api
     restart: always
     container_name: test
-    external_links:
-      - exchanges_api
-      - bots_api
     networks:
       - goatFish_backend_test
     volumes:
       - ./bot_manager/api:/usr/src/app/bot_manager:delegated
       - ./exchange_engine/api:/usr/src/app/exchange_engine:delegated
       - ./strategy_baseline/api:/usr/src/app/strategy_baseline:delegated
+      - utils_test:/usr/src/app/exchange_engine/utils:delegated
+      - utils_test:/usr/src/app/bot_manager/utils:delegated
       - utils_test:/usr/src/app/utils:delegated
+      - utils_test:/usr/src/app/strategy_baseline/utils:delegated
       - database_test:/usr/src/app/utils/database:delegated
 
   zookeeper:
