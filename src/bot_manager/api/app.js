@@ -56,11 +56,11 @@ const main = async () => {
             empty: require('./json_schema/schemas/empty.json'),
         }))
 
-    app.use(mount('/bots/management', await management()))
-    app.use(mount('/bots/margin', await margin()))
-    app.use(mount('/bots/orders', await orders()))
-    app.use(mount('/bots/positions', await positions()))
-    app.use(mount('/bots/healthcheck', await healthcheck()))
+    app.use(mount('/bot_manager/management', await management()))
+    app.use(mount('/bot_manager/margin', await margin()))
+    app.use(mount('/bot_manager/orders', await orders()))
+    app.use(mount('/bot_manager/positions', await positions()))
+    app.use(mount('/bot_manager/healthcheck', await healthcheck()))
 
     return app
 }

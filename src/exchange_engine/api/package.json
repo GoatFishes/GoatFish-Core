@@ -1,7 +1,7 @@
 {
-  "name": "exchanges_api",
+  "name": "exchange_engine",
   "version": "1.0.0",
-  "description": "Loads the dependencies for the exchanges_api endpoints",
+  "description": "Loads the dependencies for the exchange_engine endpoints",
   "main": "app.js",
   "scripts": {
     "start": "node app.js"

@@ -74,13 +74,13 @@ const main = async () => {
             cancelOrder: require('./json_schema/schemas/cancelOrder.json')
         }))
 
-    app.use(mount('/exchanges/key', await keys()))
-    app.use(mount('/exchanges/orders', await orders()))
-    app.use(mount('/exchanges/margin', await margin()))
-    app.use(mount('/exchanges/positions', await positions()))
-    app.use(mount('/exchanges/backtest', await backtest()))
-    app.use(mount('/exchanges/healthcheck', await healthcheck()))
-    app.use(mount('/exchanges/pricestream', await priceStreaming()))
+    app.use(mount('/exchange_engine/key', await keys()))
+    app.use(mount('/exchange_engine/orders', await orders()))
+    app.use(mount('/exchange_engine/margin', await margin()))
+    app.use(mount('/exchange_engine/positions', await positions()))
+    app.use(mount('/exchange_engine/backtest', await backtest()))
+    app.use(mount('/exchange_engine/healthcheck', await healthcheck()))
+    app.use(mount('/exchange_engine/pricestream', await priceStreaming()))
 
 
     return app
@@ -91,3 +91,5 @@ if (require.main === module) {
         .then((app) => app.listen(process.env.EXCHANGESPORT), logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Listening On Port ${process.env.EXCHANGESPORT}`))
         .then(producer.on('ready', function () { logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Kafka Broker Ready`) }))
 }
+
+module.exports = { main }

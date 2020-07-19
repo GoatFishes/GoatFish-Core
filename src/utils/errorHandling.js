@@ -7,7 +7,7 @@ const errorHandling = async (e) => {
 
     // Disconnected from the internet
     if (stringError.includes('ECONNREFUSED')) {
-        logEvent(LOG_LEVELS.warn, RESPONSE_CODES.LOG_MESSAGE_ONLY, `exchanges has been disconnected, please wait 10 seconds`)
+        logEvent(LOG_LEVELS.warn, RESPONSE_CODES.LOG_MESSAGE_ONLY, `exchange_engine has been disconnected, please wait 10 seconds`)
         await sleep(10000)
     }
 
@@ -24,7 +24,7 @@ const errorHandling = async (e) => {
 
     // 443 error
     if (stringError.includes('443')) {
-        logEvent(LOG_LEVELS.warn, RESPONSE_CODES.LOG_MESSAGE_ONLY, `exchanges has been disconnected, please wait 10 seconds`)
+        logEvent(LOG_LEVELS.warn, RESPONSE_CODES.LOG_MESSAGE_ONLY, `exchange_engine has been disconnected, please wait 10 seconds`)
         await sleep(10000)
     }
 
@@ -39,12 +39,12 @@ const errorHandling = async (e) => {
         let errorDescription = await stringError.match(/Rate limit exceeded, retry in \d/)
         let timeout = errorDescription[0].match(/\d+/)
         await sleep(timeout[0] * 2000)
-        logEvent(LOG_LEVELS.warn, RESPONSE_CODES.LOG_MESSAGE_ONLY, `exchanges has been rate limited for ${timeout} seconds`)
+        logEvent(LOG_LEVELS.warn, RESPONSE_CODES.LOG_MESSAGE_ONLY, `exchange_engine has been rate limited for ${timeout} seconds`)
     }
 
     else {
         await sleep(5000)
-        logEvent(LOG_LEVELS.warn, RESPONSE_CODES.LOG_MESSAGE_ONLY, `exchanges has been rate limited for 5 seconds`)
+        logEvent(LOG_LEVELS.warn, RESPONSE_CODES.LOG_MESSAGE_ONLY, `exchange_engine has been rate limited for 5 seconds`)
     }
     return
 }

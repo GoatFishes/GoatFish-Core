@@ -14,7 +14,7 @@ const { insertOrder, insertPaperOrder, selectKeysByBotId } = require('./database
 const setLiveLeverage = async (params) => {
     try {
         const { leverageBody, leverageObject } = params
-        const res = await fetchLinkBody('http://exchanges_api:3003/exchanges/positions/leverage', leverageBody, 'POST')
+        const res = await fetchLinkBody('http://exchange_engine:3003/exchange_engine/positions/leverage', leverageBody, 'POST')
         if (res.data.leverage === leverageBody.leverage) {
             leverageObject[leverageBody.symbol] = res.data.leverage
         }
@@ -35,7 +35,7 @@ const setLiveLeverage = async (params) => {
 const setLiveOrder = async (params) => {
     try {
         const { orderBody, leverageObject } = params
-        const res = await fetchLinkBody('http://exchanges_api:3003/exchanges/orders/set', orderBody, 'POST')
+        const res = await fetchLinkBody('http://exchange_engine:3003/exchange_engine/orders/set', orderBody, 'POST')
 
         if (res.data.side != null &&
             res.data.price != null &&
