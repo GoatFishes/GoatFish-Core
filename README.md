@@ -29,11 +29,15 @@
 
 Create a local copy of the project in your server or localhost:
 
-```git clone git@github.com:LucasRodriguez/GoatFish.git```
+```bash
+git clone git@github.com:LucasRodriguez/GoatFish.git
+```
 
 Run the installation script:
 
-```make install```
+```bash
+make install
+```
 
 At this point a clean install of the CLI should be available
 
@@ -43,22 +47,27 @@ It is highly recommended to test the application before running any startegies.
 
 To test the code run:
 
-```npx init goatfish```
+```bash
+npx init goatfish
+```
 
 The CLI will then ask whether you want to run a new command, wipe the data or test the application.
 Select Test 
 
 The CLI will then request a series of API keys, provide them in the order specified. 
-The CLI should Return the number of passed tests 
 
-Were any of the the tests fail, please refer to the [trouble shooting guide](https://www.youtube.com/watch?v=dQw4w9WgXcQ&feature=youtu.be)
+> ✅ The CLI should Return the number of passed tests 
+
+> ⚠️ Were any of the the tests fail, please refer to the [trouble shooting guide](https://www.youtube.com/watch?v=dQw4w9WgXcQ&feature=youtu.be)
 
 
 ## Strategy Setup
 
 To set up your first strategy firstly run:
 
-```npx init goatfish```
+```bash
+npx init goatfish
+```
 
 The CLI will then ask whether you want to run a new command, wipe the data, or test the application
 
@@ -74,11 +83,13 @@ The CLI will then ask whether you want to run a new command, wipe the data, or t
 
  - Confirm all the Information
  
-The bot should now be watching the specified markets and keeping tabs on its progress
+> ✅ The bot should now be watching the specified markets and keeping tabs on its progress
 
 To corroborate the bot is currently running:
 
-```npx init goatfish```
+```bash
+npx init goatfish
+```
 
 The CLI will then ask whether you want to run a new command, wipe the data or test the application:
 
