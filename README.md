@@ -10,15 +10,13 @@
   <img alt="GitHub issues" src="https://img.shields.io/github/issues/LucasRodriguez/GoatFish">
   
   <img alt="David" src="https://img.shields.io/badge/dependencies-up%20to%20date-brightgreen.svg">
-    
-  <img alt="APM" src="https://img.shields.io/badge/license-MIT-blue.svg">
+  
+  <img href="https://app.gitbook.com/@goatfish/s/goatfish/getting-started-users" alt="APM" src="https://img.shields.io/badge/license-MIT-blue.svg">
   
 </p>
 
 <p align="center">
-
-  <img alt="APM" src="https://img.shields.io/badge/Documentation-available-brightgreen">
-  
+  <a align="center" href="https://docs.goatfish.app/getting-started-users"><img align="center" src="https://img.shields.io/badge/Documentation-available-brightgreen"/></a>  
 </p>
 
 ## Pre-requisites
