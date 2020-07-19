@@ -62,13 +62,13 @@ services:
       - goatFish_backend  
 
   # APIs
-  exchanges_api:
+  exchange_engine:
     build: ./exchange_engine/api
-    image: exchanges_api
+    image: exchange_engine
     restart: always
-    container_name: exchanges_api
+    container_name: exchange_engine
     external_links:
-      - bots_api
+      - bot_manager
       - mocha_test
     depends_on:
       - postgres
@@ -85,13 +85,13 @@ services:
       - database:/usr/src/app/utils/database:delegated
       - /var/run/docker.sock:/var/run/docker.sock
   
-  bots_api:
+  bot_manager:
     build: ./bot_manager/api
-    image: bots_api
+    image: bot_manager
     restart: always
-    container_name: bots_api
+    container_name: bot_manager
     external_links:
-      - exchanges_api
+      - exchange_engine
       - mocha_test
     depends_on:
       - postgres
