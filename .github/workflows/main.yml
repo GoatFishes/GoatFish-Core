@@ -1,0 +1,16 @@
+name: CI/CD for project
+on:
+  push:
+    branches:
+      - master
+      - pipeline
+  watch:
+    types: [started]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        if: github.actor == github.event.repository.owner.login
+      - name: Run tests
+        run: make test
