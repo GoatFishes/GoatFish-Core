@@ -2,7 +2,7 @@
 /src/bot_manager/api/strategies
 /src/exchange_engine/api/api/node_modules/bitmex-realtime-api/lib/ReconnectingSocket.js
 /src/.env
-/coverage
+/src/coverage
 node_modules/
 
 
