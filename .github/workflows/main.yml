@@ -27,6 +27,6 @@ jobs:
           path: src/bot_manager/api
           username: ${{ secrets.DOCKERHUB_LOGIN }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-          repository: ${{ secrets.DOCKERHUB_LOGIN }}/bot_manager
+          repository: lucasxhy/bot_manager
           tags: latest
           tag_with_sha: true
