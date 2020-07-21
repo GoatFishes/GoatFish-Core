@@ -6,10 +6,9 @@
 
 <p align="center">
   <a href="https://www.codacy.com/manual/LucasRodriguez/GoatFish?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=LucasRodriguez/GoatFish&amp;utm_campaign=Badge_Grade"><img src="https://app.codacy.com/project/badge/Grade/c2a5e4cd566749ef9b6322490f75a92a"/></a>
+  <a href="https://www.codacy.com/manual/LucasRodriguez/GoatFish?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=LucasRodriguez/GoatFish&amp;utm_campaign=Badge_Coverage"><img src="https://app.codacy.com/project/badge/Coverage/c2a5e4cd566749ef9b6322490f75a92a"/></a>
   
-  <img alt="GitHub issues" src="https://img.shields.io/github/issues/LucasRodriguez/GoatFish">
-  
-  <img alt="David" src="https://img.shields.io/badge/dependencies-up%20to%20date-brightgreen.svg">
+  <img alt="APM" src="https://github.com/LucasRodriguez/GoatFish/workflows/CI/CD%20for%20project/badge.svg?event=push">
   
   <img href="https://app.gitbook.com/@goatfish/s/goatfish/getting-started-users" alt="APM" src="https://img.shields.io/badge/license-MIT-blue.svg">
   
