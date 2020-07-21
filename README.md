@@ -16,7 +16,7 @@
 </p>
 
 <p align="center">
-  <a align="center" href="https://docs.goatfish.app/getting-started-users"><img align="center" src="https://img.shields.io/badge/Documentation-available-brightgreen"/></a>  
+  <a align="center" href="https://docs.goatfish.app/getting-started-users"><img align="center" src="https://img.shields.io/badge/documentation-available-brightgreen"/></a>  
 </p>
 
 ## Pre-requisites
