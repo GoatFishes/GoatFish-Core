@@ -28,4 +28,5 @@ jobs:
           username: ${{ secrets.DOCKERHUB_LOGIN }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
           repository: ${{ secrets.DOCKERHUB_LOGIN }}/bot_manager
-          tags: ${GITHUB_SHA},latest
+          tags: latest
+          tag_with_sha: true
