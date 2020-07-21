@@ -1,0 +1,23 @@
+name: CI/CD for project
+on:
+  push:
+    branches:
+      - master
+      - pipeline-**
+  watch:
+    types: [started]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: pipeline
+      - name: Run tests
+        run: yes | make test
+        
+      - name: Run codacy-coverage-reporter
+        uses: codacy/codacy-coverage-reporter-action@master
+        with:
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          coverage-reports: src/coverage/lcov.info
