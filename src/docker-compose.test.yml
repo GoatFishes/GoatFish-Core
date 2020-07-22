@@ -20,6 +20,8 @@ services:
       - utils:/usr/src/app/bot_manager/utils:delegated
       - utils:/usr/src/app/utils:delegated
       - utils:/usr/src/app/strategy_baseline/utils:delegated
+      - /var/run/docker.sock:/var/run/docker.sock
+
 
   zookeeper:
     image: wurstmeister/zookeeper

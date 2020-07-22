@@ -176,14 +176,14 @@ describe('Bots API', () => {
             expect(res.text).to.eql('{"data":{"botId":"defaultKeys","status":"Stop"}}');
         })
 
-        // it('Should return 200 when calling /healthcheck for the container', async () => {
-        //     await sleep(2000);
-        //     res = await chai
-        //         .request(`http://${body.botId}:${port}`)
-        //         .get('/healthcheck')
+        it('Should return 200 when calling /healthcheck for the container', async () => {
+            await sleep(2000);
+            res = await chai
+                .request(`http://${body.botId}:${port}`)
+                .get('/healthcheck')
 
-        //     expect(res).to.have.status(200)
-        // })
+            expect(res).to.have.status(200)
+        })
 
         after(async () => {
             await TruncateTables()
