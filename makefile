@@ -8,12 +8,10 @@ install:
 	
 	# Bring the project down
 	-- cd src && docker-compose -f docker-compose.yml down
-	-- cd src && docker-compose -f docker-compose.test.yml down	
-	-- cd src && docker-compose -f docker-compose.debug.yml down	
+	-- cd src && docker-compose -f docker-compose.test.yml down
 
 	# Build core logic
 	cd src && docker-compose -f docker-compose.yml up -d --build
-	cd src && docker-compose -f docker-compose.debug.yml  up -d --build
 
 	sleep 60
 

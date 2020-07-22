@@ -111,7 +111,7 @@ services:
   strategy_baseline:
     image: strategy_baseline
     build:
-      context: ./strategy_baseline
+      context: ./strategy_baseline/api
     restart: always
     container_name: strategy_baseline
     networks:
