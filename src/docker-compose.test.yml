@@ -6,18 +6,20 @@ services:
     image: test_api
     restart: always
     container_name: test
+    env_file:
+      - ./.env
     networks:
-      - goatFish_backend_test
+      - goatFish_backend
     volumes:
       - ./bot_manager/api:/usr/src/app/bot_manager:delegated
       - ./exchange_engine/api:/usr/src/app/exchange_engine:delegated
       - ./strategy_baseline/api:/usr/src/app/strategy_baseline:delegated
       - ./coverage:/usr/src/app/coverage:delegated
-      - utils_test:/usr/src/app/exchange_engine/utils:delegated
-      - utils_test:/usr/src/app/bot_manager/utils:delegated
-      - utils_test:/usr/src/app/utils:delegated
-      - utils_test:/usr/src/app/strategy_baseline/utils:delegated
-      - database_test:/usr/src/app/utils/database:delegated
+      - ./bot_manager/api/strategies:/usr/src/app/strategies
+      - utils:/usr/src/app/exchange_engine/utils:delegated
+      - utils:/usr/src/app/bot_manager/utils:delegated
+      - utils:/usr/src/app/utils:delegated
+      - utils:/usr/src/app/strategy_baseline/utils:delegated
 
   zookeeper:
     image: wurstmeister/zookeeper
@@ -25,7 +27,7 @@ services:
     ports:
       - 2181
     networks:
-      - goatFish_backend_test
+      - goatFish_backend
 
   kafka:
     image: wurstmeister/kafka:latest
@@ -51,7 +53,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:delegated
     networks:
-      - goatFish_backend_test
+      - goatFish_backend
 
   # Database
   postgres:
@@ -66,7 +68,7 @@ services:
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
     networks:
-      - goatFish_backend_test
+      - goatFish_backend
 
   dbadmin:
     image: adminer
@@ -75,18 +77,24 @@ services:
     ports:
       - 8002:8080
     networks:
-      - goatFish_backend_test
+      - goatFish_backend
+
+  strategy_baseline:
+    image: strategy_baseline
+    build:
+      context: ./strategy_baseline/api
+    restart: always
+    container_name: strategy_baseline
+    networks:
+      - goatFish_backend
+    volumes:
+      - ./bot_manager/api/strategies:/usr/src/app/strategies
+      - utils:/usr/src/app/utils:delegated
+      - /var/run/docker.sock:/var/run/docker.sock
 
 volumes:
-  database_test:
-    name: database_test
-    driver: local
-    driver_opts:
-      type: none
-      device: "$PWD/utils/database"
-      o: bind
-  utils_test:
-    name: utils_test
+  utils:
+    name: utils
     driver: local
     driver_opts:
       type: none
@@ -94,5 +102,5 @@ volumes:
       o: bind
 
 networks:
-  goatFish_backend_test:
+  goatFish_backend:
     external: true

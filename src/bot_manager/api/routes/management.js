@@ -38,8 +38,8 @@ module.exports = async () => {
             await insertBotStrategy([botId, strategy, 0.0, 0.0, portNumber, pair, "Stop"])
 
             logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Copy startegy into a js file`)
-            await fs.writeFile(`/usr/src/app/strategies/${botId}.js`, strategy, function (err) {
-                if (err) { throw new ExceptionHandler(RESPONSE_CODES.APPLICATION_ERROR, `Fatal error copying the file :  + ${err}`) }
+            await fs.writeFile(`/usr/src/app/strategies/${botId}.js`, strategy, function () {
+                // if (err) { throw new ExceptionHandler(RESPONSE_CODES.APPLICATION_ERROR, `Fatal error copying the file :  + ${err}`) }
             });
             ctx.status = 200
             ctx.body = {
@@ -61,21 +61,18 @@ module.exports = async () => {
     app.use(route.post('/initiliaze', async (ctx) => {
         try {
             logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Validating the payload`)
-            const payload = ctx.checkPayload(ctx, 'execute')
+            const { botId } = ctx.checkPayload(ctx, 'execute')
 
-            const { botId } = payload
-
-            logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Retrieving the bitmex API keys for a given Bot`)
-
-            // Taken from the db
+            logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Retrieving the API keys for a given Bot`)
             const botInfo = await selectBotByBotId([botId])
             const { pair } = botInfo[0]
             const PORT = botInfo[0].port_n
             const PAIR = pair.join()
 
             logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Setting up containerised bot`)
-            exec(`curl --unix-socket /var/run/docker.sock -H "Content-Type: application/json" -d '{ "Image": "strategy_baseline", "ExposedPorts": { "${PORT}/tcp": {} }, "HostConfig": { "Binds": ["database:/usr/src/app/utils/database","utils:/usr/src/app/utils:delegated","${process.env.CURRENT_PATH}/src/bot_manager/api/strategies/${botId}.js:/usr/src/app/strategies/${botId}.js"], "NetworkMode": "goatFish_backend", "PortBindings": { "${PORT}/tcp": [{ "HostPort": "${PORT}" }]}}, "Env": ["BOTNAME=${botId}", "PORT=${PORT}", "PAIR=${PAIR}"]}' -X POST http:/v1.4/containers/create?name=${botId}`,
-                (err) => {
+            exec(`curl --unix-socket /var/run/docker.sock -H "Content-Type: application/json" -d '{ "Image": "strategy_baseline", "ExposedPorts": { "${PORT}/tcp": {} }, "HostConfig": { "Binds": ["utils:/usr/src/app/utils:delegated","${process.env.CURRENT_PATH}/src/bot_manager/api/strategies/${botId}.js:/usr/src/app/strategies/${botId}.js"], "NetworkMode": "goatFish_backend", "PortBindings": { "${PORT}/tcp": [{ "HostPort": "${PORT}" }]}}, "Env": ["BOTNAME=${botId}", "PORT=${PORT}", "PAIR=${PAIR}"]}' -X POST http:/v1.4/containers/create?name=${botId}`,
+                (err, stdout, stderr) => {
+                    logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, "error: " + stderr)
                     if (err) {
                         // empty
                     }
