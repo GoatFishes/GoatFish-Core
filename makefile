@@ -25,7 +25,7 @@ test:
 	rm -rf ./src/postgres/data
 
 	# Deploy external project network
-	-- docker network create goatFish_backend_test
+	-- docker network create goatFish_backend
 	
 	# Bring the project down
 	-- cd src && docker-compose -f docker-compose.yml down
