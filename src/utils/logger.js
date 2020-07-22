@@ -39,12 +39,7 @@ const logEvent = async (log_level, response_code, message, args) => {
         let initial = response_code === RESPONSE_CODES.LOG_MESSAGE_ONLY ? '' : 'RESPONSE CODE : ' + response_code + ' - '
 
         switch (log_level) {
-            case LOG_LEVELS.trace: await global.logger.trace(initial + 'EVENT MESSAGE : ' + message + args); break;
-            case LOG_LEVELS.debug: await global.logger.debug(initial + 'EVENT MESSAGE : ' + message + args); break;
             case LOG_LEVELS.info:  await global.logger.info (initial + 'EVENT MESSAGE : ' + message + args); break;
-            case LOG_LEVELS.warn:  await global.logger.warn (initial + 'EVENT MESSAGE : ' + message + args); break;
-            case LOG_LEVELS.error: await global.logger.error(initial + 'EVENT MESSAGE : ' + message + args); break;
-            case LOG_LEVELS.fatal: await global.logger.fatal(initial + 'EVENT MESSAGE : ' + message + args); break;
             default: break;
         }
     } catch (error) {

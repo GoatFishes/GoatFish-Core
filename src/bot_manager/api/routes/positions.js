@@ -19,6 +19,8 @@ module.exports = async () => {
      * @param type {string} specify the type of positions we are trying to build accepts options [liveOrder, paperTrade]. A null value will assume liveOrder.
      * 
      * @returns
+     * 
+     * @todo Fix the array.shift in line 199 doesnt work correctly for any give number of orders just happens to work now
      */
     app.use(route.get('/', async (ctx) => {
         try {
@@ -28,7 +30,7 @@ module.exports = async () => {
             let side = ""
             let size = 0
             let ordersDirection = ""
-            let startTime 
+            let startTime
             let endTime
             let positions = ""
             let entryPrice = 0
@@ -75,8 +77,17 @@ module.exports = async () => {
             let botPosition
             const positionSet = []
             for (let i = 0; i < positions.length; i += 1) {
-                if (!botSet.includes(positions[i].bot_id)) {
-                    botSet.push(positions[i].bot_id)
+
+                if (botSet.includes(positions[i].bot_id)) {
+                    botPosition = botSet.indexOf(positions[i].bot_id);
+                    if (positions[i].side === "Long") {
+
+                        positionSet[botPosition].positions.long.push(positions[i])
+                    } else if (positions[i].side === "Short") {
+                        positionSet[botPosition].positions.short.push(positions[i])
+                    }
+                } else {
+                    botSet.push(positions[i].bot_id)                
                     botPosition = botSet.indexOf(positions[i].bot_id);
                     positionSet.push({ botId: positions[i].bot_id, positions: { long: [], short: [] } })
 
@@ -86,16 +97,8 @@ module.exports = async () => {
                         positionSet[botPosition].positions.short.push(positions[i])
                     }
                 }
-                else if (botSet.includes(positions[i].botId)) {
-                    botPosition = botSet.indexOf(positions[i].botId);
-
-                    if (positions[i].side === "Long") {
-                        positionSet[botPosition].positions.long.push(positions[i])
-                    } else if (positions[i].side === "Short") {
-                        positionSet[botPosition].positions.short.push(positions[i])
-                    }
-                }
             }
+
             ctx.status = 200
             ctx.body = {
                 data: positionSet
@@ -119,7 +122,7 @@ const ordersRecursion = async (params) => {
         if (orders.side === BUY) {
             ordersDirection = LONG
             side = "Long"
-            contractZeroCounter += orders.size            
+            contractZeroCounter += orders.size
             size += orders.size
             assignedMargin += orders.margin
             entryPrice = orders.average_price
@@ -132,7 +135,7 @@ const ordersRecursion = async (params) => {
             contractZeroCounter += orders.size
             size += orders.size
             assignedMargin += orders.margin
-            entryPrice = orders.averagePrice
+            entryPrice = orders.average_price
             startTime = orders._timestamp
             averageLeverage.push(orders.leverage)
             averagePrice.push(orders.averagePrice)
@@ -152,12 +155,12 @@ const ordersRecursion = async (params) => {
         }
     } else if (ordersDirection === SHORT) {
         if (orders.side === BUY) {
-            contractZeroCounter += orders.size
-            liberatedMargin += orders.margin
+            contractZeroCounter -= orders.size
+            liberatedMargin -= orders.margin
             averageLeverage.push(orders.leverage)
             averagePrice.push(orders.averagePrice)
         } else {
-            contractZeroCounter -= orders.size
+            contractZeroCounter += orders.size
             size += orders.size
             assignedMargin += orders.margin
             averageLeverage.push(orders.leverage)
@@ -180,16 +183,20 @@ const ordersRecursion = async (params) => {
             await insertPaperPosition([positionId, botId, entryPrice, initialMargin, startTime, endTime, side, size, pnl, roe, averageLeverage, averagePrice])
         } else {
             await insertPosition([positionId, botId, entryPrice, initialMargin, startTime, endTime, side, size, pnl, roe, averageLeverage, averagePrice])
+
         }
 
         for (let i = 0; i < orderIds.length; i += 1) {
             logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Updating the orderId for all related orders`)
             if (type === "paperTrade") {
                 await updatePaperOrderPositionId([positionId, orderIds[i]])
+
             } else {
                 await updateOrderPositionId([positionId, orderIds[i]])
             }
         }
+
+        orderIds.shift()
 
         logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `Reseting persistance variables`)
         ordersDirection = null
