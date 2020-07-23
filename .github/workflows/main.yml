@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Run tests
-        run: (echo yes; echo yes) | make test
+        run: yes 2>/dev/null| make test
         
       - name: Run codacy-coverage-reporter
         uses: codacy/codacy-coverage-reporter-action@master
