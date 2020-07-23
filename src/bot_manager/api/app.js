@@ -24,16 +24,6 @@ const main = async () => {
 
     app.use(async (ctx, next) => {
         try {
-            await next()
-        } catch (err) {
-            ctx.status = err.status || 500
-            ctx.body = err.message
-            ctx.app.emit('error', err, ctx)
-        }
-    })
-
-    app.use(async (ctx, next) => {
-        try {
             logEvent(LOG_LEVELS.info, RESPONSE_CODES.LOG_MESSAGE_ONLY, `${ctx.request.href} ENDPOINT CALLED`)
             await next()
         } catch (err) {
