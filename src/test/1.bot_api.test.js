@@ -90,18 +90,19 @@ describe('Bots API', () => {
 
     describe('management', () => {
         describe('/upload', async () => {
-            // Upload a new bot
-            let res
+            describe('upload a bot with the correct payload', async () => {
+                // Upload a new bot
+                let res
 
-            before(async () => {
-                res = await chai
-                    .request(server)
-                    .post('/bot_manager/management/upload')
-                    .set('content-type', 'application/json')
-                    .send({
-                        "botId": "defaultKeys",
-                        "strategy":
-                            `const strategy = async (params) => {
+                before(async () => {
+                    res = await chai
+                        .request(server)
+                        .post('/bot_manager/management/upload')
+                        .set('content-type', 'application/json')
+                        .send({
+                            "botId": "defaultKeys",
+                            "strategy":
+                                `const strategy = async (params) => {
             let strategyObject = {
                 execute: false						// Identifies whether we will be making an order
                 , symbol: "XBTUSD"				// Identifies the asset that will be makin an order
@@ -128,120 +129,205 @@ describe('Bots API', () => {
             }
             module.exports = { strategy }
             `
-                        , "apiKeyId": keys.apiKeyID, "apiKeySecret": keys.apiKeySecret, "exchange": "bitmex", "portNumber": 3009, "assets": `["1mXBTUSD", "5mXBTUSD"]`
-                    })
+                            , "apiKeyId": keys.apiKeyID, "apiKeySecret": keys.apiKeySecret, "exchange": "bitmex", "portNumber": 3009, "assets": `["1mXBTUSD", "5mXBTUSD"]`
+                        })
+                })
+
+                it('Should return 200 when calling /upload for the container', async () => {
+                    expect(res).to.have.status(200)
+                })
+
+                it('Should return the correct message', () => {
+                    expect(res.text).to.eql('{"data":{"botId":"defaultKeys","upload":"OK"}}');
+                })
+
+                it('Should persist a new bot to the database', async () => {
+                    let tradePersistance = await selectBotByBotId(['defaultKeys'])
+                    expect(tradePersistance[0].bot_id).to.eql('defaultKeys');
+                })
+
+                after(async () => {
+                    await TruncateTables()
+                })
             })
 
-            it('Should return 200 when calling /upload for the container', async () => {
-                expect(res).to.have.status(200)
+            describe('Fail to upload a bot with empty payload', async () => {
+                // Upload a new bot
+                let res
+
+                before(async () => {
+                    res = await chai
+                        .request(server)
+                        .post('/bot_manager/management/upload')
+                        .set('content-type', 'application/json')
+                        .send({})
+                })
+
+                it('Should return 550 when calling /upload for the container', async () => {
+                    expect(res).to.have.status(550)
+                })
+
+                after(async () => {
+                    await TruncateTables()
+                })
+            })
+        })
+
+        describe('/initiliaze', async () => {
+            var res
+            let body = { "botId": "defaultKeys" }
+            const port = 3009
+
+            describe('Should initialise a trading strategy by passing in the correct body', async () => {
+                before(async () => {
+                    await insertBotKeys(["defaultKeys", keys, "bitmex"])
+                    await insertBotStrategy(["defaultKeys", "", 0.0, 0.0, port, `["1mXBTUSD", "5mXBTUSD"]`, 'Stop'])
+
+                    res = await chai
+                        .request(server)
+                        .post('/bot_manager/management/initiliaze')
+                        .set('content-type', 'application/json')
+                        .send(body)
+                })
+
+                it('Should succesfully call the /initiliaze endpoint', async () => {
+                    expect(res).to.have.status(200)
+                })
+
+                it('Should return the correct message', () => {
+                    expect(res.text).to.eql('{"data":{"botId":"defaultKeys","status":"Stop"}}');
+                })
+
+                it('Should return 200 when calling /healthcheck for the container', async () => {
+                    await sleep(2000);
+                    res = await chai
+                        .request(`http://${body.botId}:${port}`)
+                        .get('/healthcheck')
+
+                    expect(res).to.have.status(200)
+                })
+
+                after(async () => {
+                    await TruncateTables()
+                })
             })
 
-            it('Should return the correct message', () => {
-                expect(res.text).to.eql('{"data":{"botId":"defaultKeys","upload":"OK"}}');
+            describe('Should fail to intialise a trading strategy by passing in an emmpty body', async () => {
+                before(async () => {
+                    await insertBotKeys(["defaultKeys", keys, "bitmex"])
+                    await insertBotStrategy(["defaultKeys", "", 0.0, 0.0, port, `["1mXBTUSD", "5mXBTUSD"]`, 'Stop'])
+
+                    res = await chai
+                        .request(server)
+                        .post('/bot_manager/management/initiliaze')
+                        .set('content-type', 'application/json')
+                        .send({})
+                })
+
+                it('Should succesfully call the /initiliaze endpoint', async () => {
+                    expect(res).to.have.status(550)
+                })
+
+                after(async () => {
+                    await TruncateTables()
+                })
             })
 
-            it('Should persist a new bot to the database', async () => {
-                let tradePersistance = await selectBotByBotId(['defaultKeys'])
-                expect(tradePersistance[0].bot_id).to.eql('defaultKeys');
-            })
+            describe('Should fail to parse a body thats not registered', async () => {
+                before(async () => {
+                    await insertBotKeys(["defaultKeeys", keys, "bitmex"])
+                    await insertBotStrategy(["defaultKeys", "", 0.0, 0.0, port, `["1mXBTUSD", "5mXBTUSD"]`, 'Stop'])
 
-            after(async () => {
-                await TruncateTables()
+                    res = await chai
+                        .request(server)
+                        .post('/bot_manager/management/initiliaze')
+                        .set('content-type', 'application/json')
+                        .send({ body })
+                })
+
+                it('Should fail to call the /initiliaze endpoint with code 550', async () => {
+                    expect(res).to.have.status(550)
+                })
+
+                after(async () => {
+                    await TruncateTables()
+                })
             })
         })
     })
 
-    describe('/initiliaze', async () => {
-        var res
-        let body = { "botId": "defaultKeys" }
-
-        let port = 3009
-
-        before(async () => {
-            await insertBotKeys(["defaultKeys", keys, "bitmex"])
-            await insertBotStrategy(["defaultKeys", "", 0.0, 0.0, port, `["1mXBTUSD", "5mXBTUSD"]`, 'Stop'])
-
-            res = await chai
-                .request(server)
-                .post('/bot_manager/management/initiliaze')
-                .set('content-type', 'application/json')
-                .send(body)
-        })
-
-        it('Should succesfully call the /initiliaze endpoint', async () => {
-            expect(res).to.have.status(200)
-        })
-
-        it('Should return the correct message', () => {
-            expect(res.text).to.eql('{"data":{"botId":"defaultKeys","status":"Stop"}}');
-        })
-
-        it('Should return 200 when calling /healthcheck for the container', async () => {
-            await sleep(2000);
-            res = await chai
-                .request(`http://${body.botId}:${port}`)
-                .get('/healthcheck')
-
-            expect(res).to.have.status(200)
-        })
-
-        after(async () => {
-            await TruncateTables()
-        })
-    })
 
     describe('margin', () => {
         describe('/', async () => {
             let res
+            describe('Pass all the correct parameter through kafka', async () => {
+                before(async () => {
+                    let topic = "margin"
+                    await insertBotKeys(["defaultKeys", keys, "bitmex"])
+                    await insertBotStrategy(["defaultKeys", "", 0.0, 0.0, 3009, null, 'Stop'])
 
-            before(async () => {
-                let topic = "margin"
-                await insertBotKeys(["defaultKeys", keys, "bitmex"])
-                await insertBotStrategy(["defaultKeys", "", 0.0, 0.0, 3009, null, 'Stop'])
+                    payloads = [
+                        { topic: topic, messages: '{"botId":"defaultKeys","exchange":"bitmex","data":{"account":1180512,"currency":"XBt","prevDeposited":274515,"prevWithdrawn":0,"prevTransferIn":0,"prevTransferOut":0,"prevAmount":1308,"prevTimestamp":"2019-11-25T13:00:00.000Z","deltaDeposited":0,"deltaWithdrawn":0,"deltaTransferIn":0,"deltaTransferOut":0,"deltaAmount":0,"deposited":274515,"withdrawn":0,"transferIn":0,"transferOut":0,"amount":1308,"pendingCredit":0,"pendingDebit":0,"confirmedDebit":0,"timestamp":"2019-11-27T12:00:02.877Z","addr":"3BMEXVK5Jypn8yS8sMZqNg6MtFWaQzwcta","script":"534104220936c3245597b1513a9a7fe96d96facf1a840ee21432a1b73c2cf42c1810284dd730f21ded9d818b84402863a2b5cd1afe3a3d13719d524482592fb23c88a3410472225d3abc8665cf01f703a270ee65be5421c6a495ce34830061eb0690ec27dfd1194e27b6b0b659418d9f91baec18923078aac18dc19699aae82583561fefe541048a1c80f418e2e0ed444c7cf868094598a480303aec840f4895b207b813a8b700e0960a513f567724a7e467101a608c5b20be10de103010bb66fec4d0d2c8cb8b4104a24db5c0e8ed34da1fd3b6f9f797244981b928a8750c8f11f9252041daad7b2d95309074fed791af77dc85abdd8bb2774ed8d53379d28cd49f251b9c08cab7fc54ae","withdrawalLock":[]}}', partition: 0 },
+                        { topic: topic, messages: '{"botId":"defaultKeys","exchange":"bitmex","data":{"account":1180512,"currency":"XBt","prevDeposited":274515,"prevWithdrawn":0,"prevTransferIn":0,"prevTransferOut":0,"prevAmount":1308,"prevTimestamp":"2019-11-25T12:00:00.000Z","deltaDeposited":0,"deltaWithdrawn":0,"deltaTransferIn":0,"deltaTransferOut":0,"deltaAmount":0,"deposited":274515,"withdrawn":0,"transferIn":0,"transferOut":0,"amount":1308,"pendingCredit":0,"pendingDebit":0,"confirmedDebit":0,"timestamp":"2019-11-26T12:00:02.877Z","addr":"3BMEXVK5Jypn8yS8eMZqNg6MtFWaQzwcta","script":"534104220936c3245597b1513a9a7fe96d96facf1a840ee21432a1b73c2cf42c1810284dd730f21ded9d818b84402863a2b5cd1afe3a3d13719d524482592fb23c88a3410472225d3abc8665cf01f703a270ee65be5421c6a495ce34830061eb0690ec27dfd1194e27b6b0b659418d9f91baec18923078aac18dc19699aae82583561fefe541048a1c80f418e2e0ed444c7cf868094598a480303aec840f4895b207b813a8b700e0960a513f567724a7e467101a608c5b20be10de103010bb66fec4d0d2c8cb8b4104a24db5c0e8ed34da1fd3b6f9f797244981b928a8750c8f11f9252041daad7b2d95309074fed791af77dc85abdd8bb2774ed8d53379d28cd49f251b9c08cab7fc54ae","withdrawalLock":[]}}', partition: 0 }
+                    ]
 
-                payloads = [
-                    { topic: topic, messages: '{"botId":"defaultKeys","exchange":"bitmex","data":{"account":1180512,"currency":"XBt","prevDeposited":274515,"prevWithdrawn":0,"prevTransferIn":0,"prevTransferOut":0,"prevAmount":1308,"prevTimestamp":"2019-11-25T13:00:00.000Z","deltaDeposited":0,"deltaWithdrawn":0,"deltaTransferIn":0,"deltaTransferOut":0,"deltaAmount":0,"deposited":274515,"withdrawn":0,"transferIn":0,"transferOut":0,"amount":1308,"pendingCredit":0,"pendingDebit":0,"confirmedDebit":0,"timestamp":"2019-11-27T12:00:02.877Z","addr":"3BMEXVK5Jypn8yS8sMZqNg6MtFWaQzwcta","script":"534104220936c3245597b1513a9a7fe96d96facf1a840ee21432a1b73c2cf42c1810284dd730f21ded9d818b84402863a2b5cd1afe3a3d13719d524482592fb23c88a3410472225d3abc8665cf01f703a270ee65be5421c6a495ce34830061eb0690ec27dfd1194e27b6b0b659418d9f91baec18923078aac18dc19699aae82583561fefe541048a1c80f418e2e0ed444c7cf868094598a480303aec840f4895b207b813a8b700e0960a513f567724a7e467101a608c5b20be10de103010bb66fec4d0d2c8cb8b4104a24db5c0e8ed34da1fd3b6f9f797244981b928a8750c8f11f9252041daad7b2d95309074fed791af77dc85abdd8bb2774ed8d53379d28cd49f251b9c08cab7fc54ae","withdrawalLock":[]}}', partition: 0 },
-                    { topic: topic, messages: '{"botId":"defaultKeys","exchange":"bitmex","data":{"account":1180512,"currency":"XBt","prevDeposited":274515,"prevWithdrawn":0,"prevTransferIn":0,"prevTransferOut":0,"prevAmount":1308,"prevTimestamp":"2019-11-25T12:00:00.000Z","deltaDeposited":0,"deltaWithdrawn":0,"deltaTransferIn":0,"deltaTransferOut":0,"deltaAmount":0,"deposited":274515,"withdrawn":0,"transferIn":0,"transferOut":0,"amount":1308,"pendingCredit":0,"pendingDebit":0,"confirmedDebit":0,"timestamp":"2019-11-26T12:00:02.877Z","addr":"3BMEXVK5Jypn8yS8eMZqNg6MtFWaQzwcta","script":"534104220936c3245597b1513a9a7fe96d96facf1a840ee21432a1b73c2cf42c1810284dd730f21ded9d818b84402863a2b5cd1afe3a3d13719d524482592fb23c88a3410472225d3abc8665cf01f703a270ee65be5421c6a495ce34830061eb0690ec27dfd1194e27b6b0b659418d9f91baec18923078aac18dc19699aae82583561fefe541048a1c80f418e2e0ed444c7cf868094598a480303aec840f4895b207b813a8b700e0960a513f567724a7e467101a608c5b20be10de103010bb66fec4d0d2c8cb8b4104a24db5c0e8ed34da1fd3b6f9f797244981b928a8750c8f11f9252041daad7b2d95309074fed791af77dc85abdd8bb2774ed8d53379d28cd49f251b9c08cab7fc54ae","withdrawalLock":[]}}', partition: 0 }
-                ]
+                    await producer.send(payloads, async function (err, data) {
+                    })
 
-                await producer.send(payloads, async function (err, data) {
+                    res = await chai
+                        .request(server)
+                        .get('/bot_manager/margin')
                 })
 
-                res = await chai
-                    .request(server)
-                    .get('/bot_manager/margin')
-            })
+                it('Should succesfully call the / endpoint', async () => {
+                    it('Should return 200 when calling /orders/get for the container', async () => {
+                        expect(res).to.have.status(200)
+                    })
+                })
 
-            it('Should succesfully call the / endpoint', async () => {
-                it('Should return 200 when calling /orders/get for the container', async () => {
-                    expect(res).to.have.status(200)
+                it('Should return the correct response', () => {
+                    expect(res.body).to.have.property('data');
+                    expect(res.body.data).to.have.property('marginResponseObject');
+                    expect(res.body.data.marginResponseObject).to.have.property('bitmex');
+                    expect(res.body.data.marginResponseObject.bitmex[0]).to.have.property('botId');
+                    expect(res.body.data.marginResponseObject.bitmex[0]).to.have.property('amount');
+                })
+
+                it('Should persit the correct margin to the bots table', async () => {
+                    let botInfo = await selectBotByBotId(['defaultKeys'])
+                    expect(botInfo[0].margin).to.eql(1308);
+                })
+
+                it('Should persit the correct margin and date to the margin table', async () => {
+                    let today = new Date()
+                    let date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate()
+
+                    let marginStats = await selectMargin([1308, date])
+
+                    expect(marginStats[0].amount).to.eql(1308);
+                })
+
+                after(async () => {
+                    await TruncateTables()
                 })
             })
+            describe('Pass all the a null botId through kafka', async () => {
+                before(async () => {
+                    let topic = "margin"
+                    await insertBotKeys(["defaultKeys", keys, "bitmex"])
+                    await insertBotStrategy(["defaultKeys", "", 0.0, 0.0, 3009, null, 'Stop'])
 
-            it('Should return the correct response', () => {
-                expect(res.body).to.have.property('data');
-                expect(res.body.data).to.have.property('marginResponseObject');
-                expect(res.body.data.marginResponseObject).to.have.property('bitmex');
-                expect(res.body.data.marginResponseObject.bitmex[0]).to.have.property('botId');
-                expect(res.body.data.marginResponseObject.bitmex[0]).to.have.property('amount');
-            })
+                    payloads = [
+                        { topic: topic, messages: '{"exchange":"bitmex","data":{"account":1180512,"currency":"XBt","prevDeposited":274515,"prevWithdrawn":0,"prevTransferIn":0,"prevTransferOut":0,"prevAmount":1308,"prevTimestamp":"2019-11-25T13:00:00.000Z","deltaDeposited":0,"deltaWithdrawn":0,"deltaTransferIn":0,"deltaTransferOut":0,"deltaAmount":0,"deposited":274515,"withdrawn":0,"transferIn":0,"transferOut":0,"amount":1308,"pendingCredit":0,"pendingDebit":0,"confirmedDebit":0,"timestamp":"2019-11-27T12:00:02.877Z","addr":"3BMEXVK5Jypn8yS8sMZqNg6MtFWaQzwcta","script":"534104220936c3245597b1513a9a7fe96d96facf1a840ee21432a1b73c2cf42c1810284dd730f21ded9d818b84402863a2b5cd1afe3a3d13719d524482592fb23c88a3410472225d3abc8665cf01f703a270ee65be5421c6a495ce34830061eb0690ec27dfd1194e27b6b0b659418d9f91baec18923078aac18dc19699aae82583561fefe541048a1c80f418e2e0ed444c7cf868094598a480303aec840f4895b207b813a8b700e0960a513f567724a7e467101a608c5b20be10de103010bb66fec4d0d2c8cb8b4104a24db5c0e8ed34da1fd3b6f9f797244981b928a8750c8f11f9252041daad7b2d95309074fed791af77dc85abdd8bb2774ed8d53379d28cd49f251b9c08cab7fc54ae","withdrawalLock":[]}}', partition: 0 },
+                    ]
 
-            it('Should persit the correct margin to the bots table', async () => {
-                let botInfo = await selectBotByBotId(['defaultKeys'])
-                expect(botInfo[0].margin).to.eql(1308);
-            })
+                    await producer.send(payloads, async function (err, data) {
+                    })
 
-            it('Should persit the correct margin and date to the margin table', async () => {
-                let today = new Date()
-                let date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate()
-
-                let marginStats = await selectMargin([1308, date])
-
-                expect(marginStats[0].amount).to.eql(1308);
-            })
-
-            after(async () => {
-                await TruncateTables()
+                    res = await chai
+                        .request(server)
+                        .get('/bot_manager/margin')
+                })
             })
         })
     })

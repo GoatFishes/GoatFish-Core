@@ -16,6 +16,7 @@
       "global-require":"off",
       "radix":"off",
       "consistent-return":"off", 
-      "security/detect-object-injection":"off"
+      "security/detect-object-injection":"off", 
+      "no-throw-literal":"warn"
     }
   }
