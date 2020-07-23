@@ -1,28 +1,8 @@
 version: "3.5"
 
 services:
-  test:
-    build: ./test
-    image: test_api
-    restart: always
-    container_name: test
-    env_file:
-      - ./.env
-    networks:
-      - goatFish_backend
-    volumes:
-      - ./bot_manager/api:/usr/src/app/bot_manager:delegated
-      - ./exchange_engine/api:/usr/src/app/exchange_engine:delegated
-      - ./strategy_baseline/api:/usr/src/app/strategy_baseline:delegated
-      - ./coverage:/usr/src/app/coverage:delegated
-      - ./bot_manager/api/strategies:/usr/src/app/strategies
-      - utils:/usr/src/app/exchange_engine/utils:delegated
-      - utils:/usr/src/app/bot_manager/utils:delegated
-      - utils:/usr/src/app/utils:delegated
-      - utils:/usr/src/app/strategy_baseline/utils:delegated
-      - /var/run/docker.sock:/var/run/docker.sock
 
-
+  # Kafka
   zookeeper:
     image: wurstmeister/zookeeper
     container_name: zookeeper
@@ -30,7 +10,7 @@ services:
       - 2181
     networks:
       - goatFish_backend
-
+  
   kafka:
     image: wurstmeister/kafka:latest
     container_name: kafka
@@ -72,17 +52,46 @@ services:
     networks:
       - goatFish_backend
 
-  dbadmin:
-    image: adminer
+  # APIs
+  exchange_engine:
+    image: lucasxhy/exchange_engine:latest
+    container_name: exchange_engine
     restart: always
-    container_name: postgres_admin
+    external_links:
+      - bot_manager
+    depends_on:
+      - postgres
+      - kafka
     ports:
-      - 8002:8080
+      - ${EXCHANGESPORT}:3003
+    env_file:
+      - ./.env
     networks:
       - goatFish_backend
-
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  
+  bot_manager:
+    image: lucasxhy/bot_manager:latest
+    container_name: bot_manager
+    restart: always
+    external_links:
+      - exchange_engine
+    depends_on:
+      - postgres
+      - kafka
+    ports:
+      - ${BOTSPORT}:3002
+    env_file:
+      - ./.env
+    networks:
+      - goatFish_backend
+    volumes:
+    # Strategies volume has to be included here somehow?
+      - /var/run/docker.sock:/var/run/docker.sock
+    
   strategy_baseline:
-    image: strategy_baseline
+    image: strategy_baseline:latest
     build:
       context: ./strategy_baseline/api
     restart: always
@@ -90,18 +99,8 @@ services:
     networks:
       - goatFish_backend
     volumes:
-      - ./bot_manager/api/strategies:/usr/src/app/strategies
-      - utils:/usr/src/app/utils:delegated
+    # Strategies volume has to be included here somehow?
       - /var/run/docker.sock:/var/run/docker.sock
-
-volumes:
-  utils:
-    name: utils
-    driver: local
-    driver_opts:
-      type: none
-      device: "$PWD/utils"
-      o: bind
 
 networks:
   goatFish_backend:
