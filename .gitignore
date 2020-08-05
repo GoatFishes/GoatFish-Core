@@ -1,9 +1,5 @@
-/src/postgres/data
-/src/bot_manager/api/strategies
-/src/exchange_engine/api/api/node_modules/bitmex-realtime-api/lib/ReconnectingSocket.js
-/src/.env
-/src/coverage
-node_modules/
-
+./src/.env
+./src/strategies
+./src/postgres
 
 .DS_Store

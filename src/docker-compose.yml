@@ -46,30 +46,19 @@ services:
       - 5432
     volumes:
       - ./postgres/data:/var/lib/postgresql/data:delegated
-      - ./postgres/scripts:/docker-entrypoint-initdb.d:delegated
+      - ./:/docker-entrypoint-initdb.d:delegated
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
     networks:
       - goatFish_backend
 
-  dbadmin:
-    image: adminer
-    restart: always
-    container_name: postgres_admin
-    ports:
-      - 8002:8080
-    networks:
-      - goatFish_backend  
-
   # APIs
   exchange_engine:
-    build: ./exchange_engine/api
-    image: exchange_engine
-    restart: always
+    image: lucasxhy/exchange_engine:latest
     container_name: exchange_engine
+    restart: always
     external_links:
       - bot_manager
-      - mocha_test
     depends_on:
       - postgres
       - kafka
@@ -80,18 +69,14 @@ services:
     networks:
       - goatFish_backend
     volumes:
-      - ./exchange_engine/api/WebSocket.js:/usr/src/app/node_modules/bitmex-realtime-api/lib/ReconnectingSocket.js:delegated
-      - utils:/usr/src/app/utils:delegated
       - /var/run/docker.sock:/var/run/docker.sock
   
   bot_manager:
-    build: ./bot_manager/api
-    image: bot_manager
-    restart: always
+    image: lucasxhy/bot_manager:latest
     container_name: bot_manager
+    restart: always
     external_links:
       - exchange_engine
-      - mocha_test
     depends_on:
       - postgres
       - kafka
@@ -102,31 +87,8 @@ services:
     networks:
       - goatFish_backend
     volumes:
-      - ./bot_manager/api/strategies:/usr/src/app/strategies
-      - utils:/usr/src/app/utils:delegated
+      - ./strategies:/usr/src/app/strategies
       - /var/run/docker.sock:/var/run/docker.sock
-    
-  strategy_baseline:
-    image: strategy_baseline
-    build:
-      context: ./strategy_baseline/api
-    restart: always
-    container_name: strategy_baseline
-    networks:
-      - goatFish_backend
-    volumes:
-      - ./bot_manager/api/strategies:/usr/src/app/strategies
-      - utils:/usr/src/app/utils:delegated
-      - /var/run/docker.sock:/var/run/docker.sock
-
-volumes: 
-  utils:
-    name: utils
-    driver: local
-    driver_opts:
-      type: none
-      device: "$PWD/utils"
-      o: bind
 
 networks:
   goatFish_backend:
