@@ -1,7 +1,6 @@
 
 <p align="center">
   <img align="center" height="218px" width="456px"  src="./src/assets/img/Goatfish Core White.png"></img>
-  <h1 align="center"> GoatFish </h1>
 </p>
 
 <p align="center">  
