@@ -1,6 +1,6 @@
 
 <p align="center">
-  <img align="center" height="218px" width="456px"  src="./src/assets/img/Goatfish Core White.png"></img>
+  <img align="center" height="100%" width="200%"  src="./src/assets/img/Goatfish Core White.png"></img>
 </p>
 
 <p align="center">  
