@@ -1,3 +1,4 @@
-/src/
-
 .DS_Store
+./src/.env
+./src/strategies
+./src/postgres
