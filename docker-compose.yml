@@ -89,18 +89,6 @@ services:
     volumes:
       - ./strategies:/usr/src/app/strategies
       - /var/run/docker.sock:/var/run/docker.sock
-    
-  strategy_baseline:
-    image: strategy_baseline:latest
-    build:
-      context: ./strategy_baseline/api
-    restart: always
-    container_name: strategy_baseline
-    networks:
-      - goatFish_backend
-    volumes:
-      - ./strategies:/usr/src/app/strategies
-      - /var/run/docker.sock:/var/run/docker.sock
 
 networks:
   goatFish_backend:
