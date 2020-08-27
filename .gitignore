@@ -1,5 +1,5 @@
 ./src/.env
 ./src/strategies
-./src/postgres
+./src/postgres/data/*
 
 .DS_Store

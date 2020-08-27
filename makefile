@@ -1,4 +1,9 @@
 install:	
+	# Pull docker images
+	docker pull lucasxhy/exchange_engine:latest
+	docker pull lucasxhy/bot_manager:latest
+	docker pull lucasxhy/strategy_baseline:latest
+
 	# run initalisation script
 	sh ./src/init.sh
 
